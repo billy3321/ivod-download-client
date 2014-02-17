@@ -12,3 +12,5 @@ Usage：
 
 Python：Beautifulsoap
 PHP：curl
+
+AdobeHDS.php is come from https://github.com/K-S-V/

@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib, urllib2
-import json
-import cookielib
+import urllib, urllib2, json, cookielib, os, sys, random, time, datetime
 from BeautifulSoup import BeautifulSoup, SoupStrainer
-import os
-import sys
-import subprocess
 from optparse import OptionParser
 
 
@@ -129,18 +124,19 @@ def get_movie_url(wzs_id, t, quality='w'):
             script_text = div_movie.find('script').text
             script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
             script_text = script_text.replace("');", '')
-            print script_text
+            #print script_text
             return script_text
         #return xml
 
 def get_picture_url(pic_name):
     return 'http://ivod.ly.gov.tw/Image/Pic/' + pic_name
 
+def random_sleep():
+    time.sleep(random.randint(1,5))
+
 def download_resource(item): 
-    path = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-    filename = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
-    if item.has_key('speaker'):
-        filename += '-%s-%s' % (item['order'], item['speaker'])
+    path = item['path']
+    filename = item['filename']
     if not os.path.exists(path):
         os.makedirs(path)
     elif not os.path.isdir(path):
@@ -148,7 +144,7 @@ def download_resource(item):
         os.makedirs(path)
 
     if item.has_key('thumb') and item['thumb'] and check_url(item['thumb']):
-        extension = os.path.splitext(item['thumb'])[1]
+        extension = os.path.splitext(item['thumb'])[-1]
         full_path = '%s/%s%s' % (path, filename, extension)
         cmd = "wget -O '%s' '%s'" % (full_path, item['thumb'])
         #print cmd
@@ -156,21 +152,19 @@ def download_resource(item):
         urllib.urlretrieve(item['thumb'], full_path)
 
     if item.has_key('video_url_n') and item['video_url_n'] and check_url(item['video_url_n']):
-        #extension = 'mp4'
         filename_n = '%s_n' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
         #print cmd
         os.system(cmd)
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
-        #extension = 'mp4'
         filename_w = '%s_w' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
         #print cmd
         os.system(cmd)
 
 def write_config(info):
-    path = os.path.join('data', info['whole'][0]['ad'], info['whole'][0]['session'], committee[info['whole'][0]['comit_code']]['code'], info['whole'][0]['date'])
+    path = info['whole'][0]['path']
     if not os.path.exists(path):
         os.makedirs(path)
     full_path = os.path.join(path, 'info.json')
@@ -192,12 +186,20 @@ def main():
     parser.add_option("-n", "--no-download",
                       action="store_true", dest="nd", help="don't download resource")
     (options, args) = parser.parse_args()
-    print options
+    #print options
+    if options.limit_date:
+        try:
+            limit_date = datetime.datetime.strptime(options.limit_date, '%Y-%m-%d')
+            limit_date = limit_date.strftime('%Y-%m-%d')
+        except ValueError:
+            raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+    else:
+        limit_date = None
     if not test_php():
         print "Please check PHP extensions."
         sys.exit(1)
     for comit_id in committee.keys():
-        date_list = get_date_list(comit_id, options.limit_date)
+        date_list = get_date_list(comit_id, limit_date)
         print date_list
         for date in date_list:
             movie_list = get_movie_by_date(comit_id, date, 1)
@@ -217,10 +219,14 @@ def main():
                 item['date'] = i['ST_TIM'].split(' ')[0]
                 item['summary'] = i['METDEC']
                 item['comit_code'] = comit_id
+                item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
+                item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                 full_list.append(item)
+                random_sleep()
                 #print item
                 if not options.nd:
                     download_resource(item)
+                    random_sleep()
             for num in xrange(1, (page_num + 1)):
                 if num != 1:
                     movie_list = get_movie_by_date(comit_id, date, num)
@@ -241,10 +247,14 @@ def main():
                     item['summary'] = i['METDEC']
                     item['order'] = i['R']
                     item['comit_code'] = comit_id
+                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['order'], item['speaker'])
+                    item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     single_list.append(item)
+                    random_sleep()
                     #print item
                     if not options.nd:
                         download_resource(item)
+                        random_sleep()
             #print full_list
             print single_list
             full_info = {'whole': full_list, 'clips': single_list}

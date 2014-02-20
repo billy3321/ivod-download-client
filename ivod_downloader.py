@@ -4,6 +4,7 @@
 import urllib, urllib2, json, cookielib, os, sys, random, time, datetime, subprocess
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
+import db
 
 
 base_url = 'http://ivod.ly.gov.tw/'

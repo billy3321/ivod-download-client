@@ -30,7 +30,7 @@ class Database(Singleton):
             speaker text, thumb text, time text, summary text,\
         	comit_code text, filename text, ext text, path text, finished int)'
         self.cursor.execute(sql)
-        sql = 'CREATE UNIQUE INDEX id ON ivod_index (ad, session, sitting, date, firm, no);'
+        sql = 'CREATE UNIQUE INDEX id ON ivod_index (ad, session, sitting, date, firm, num);'
         self.cursor.execute(sql)
 
     def insert_data(self, data):

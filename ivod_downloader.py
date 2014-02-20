@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib, urllib2, json, cookielib, os, sys, random, time, datetime
+import urllib, urllib2, json, cookielib, os, sys, random, time, datetime, subprocess
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
 
@@ -21,6 +21,15 @@ committee ={
     '12':{'name': u'社會福利及衛生環境', 'code': 'SWE'},
     '13':{'name': u'程序', 'code': 'PRO'},
     '23':{'name': u'紀律', 'code': 'DIS'}}
+
+def config_parser(path):
+    """parser the config"""
+    try:
+        with open(path) as json_data:
+            data = json.load(json_data)
+        return data
+    except:
+        return False
 
 def json_dumps(o):
     return json.dumps(o, sort_keys=True, ensure_ascii=False).encode('utf8')
@@ -134,7 +143,7 @@ def get_picture_url(pic_name):
 def random_sleep():
     time.sleep(random.randint(1,5))
 
-def download_resource(item): 
+def download_resource(item, limit_speed = 0): 
     path = item['path']
     filename = item['filename']
     if not os.path.exists(path):
@@ -155,13 +164,15 @@ def download_resource(item):
         filename_n = '%s_n' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
         #print cmd
-        os.system(cmd)
+        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', limit_speed])
+        #os.system(cmd)
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
         filename_w = '%s_w' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
         #print cmd
-        os.system(cmd)
+        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', limit_speed])
+        #os.system(cmd)
 
 def write_config(info):
     path = info['whole'][0]['path']
@@ -181,25 +192,34 @@ def test_php():
 def main():
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
-    parser.add_option("-l", "--limit-date", dest="limit_date",
+    parser.add_option("-d", "--date", dest="start_date",
                       help='get video after date, format is %Y-%m-%d')
     parser.add_option("-n", "--no-download",
                       action="store_true", dest="nd", help="don't download resource")
+    parser.add_option("-l", "--limit-speed", dest="limit_speed",
+                      help='download speed, unit is kb/s')
     (options, args) = parser.parse_args()
     #print options
-    if options.limit_date:
+    if options.start_date:
         try:
-            limit_date = datetime.datetime.strptime(options.limit_date, '%Y-%m-%d')
-            limit_date = limit_date.strftime('%Y-%m-%d')
+            start_date = datetime.datetime.strptime(options.start_date, '%Y-%m-%d')
+            start_date = start_date.strftime('%Y-%m-%d')
         except ValueError:
             raise ValueError("Incorrect data format, should be YYYY-MM-DD")
     else:
-        limit_date = None
+        start_date = None
+    if not options.limit_speed:
+        limit_speed = 0
+    else:
+        limit_speed = options.limit_speed
     if not test_php():
         print "Please check PHP extensions."
         sys.exit(1)
+    config = config_parser('config.json')
+    database = db.Database(config['db'])
     for comit_id in committee.keys():
-        date_list = get_date_list(comit_id, limit_date)
+        date_list = get_date_list(comit_id, start_date)
+
         print date_list
         for date in date_list:
             movie_list = get_movie_by_date(comit_id, date, 1)
@@ -217,16 +237,19 @@ def main():
                 item['video_url_n'] = get_movie_url(i['MEREID'], 'whole', 'n')
                 item['video_url_w'] = get_movie_url(i['MEREID'], 'whole', 'w')
                 item['date'] = i['ST_TIM'].split(' ')[0]
-                item['summary'] = i['METDEC']
+                item['summary'] = i['METDEC'].replace('\n', '')
                 item['comit_code'] = comit_id
                 item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
                 item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                item['finished'] = None
+                item['firm'] = 'whole'
                 full_list.append(item)
                 random_sleep()
                 #print item
                 if not options.nd:
-                    download_resource(item)
+                    item['finish'] = download_resource(item, limit_speed)
                     random_sleep()
+                database.insert_data(item)
             for num in xrange(1, (page_num + 1)):
                 if num != 1:
                     movie_list = get_movie_by_date(comit_id, date, num)
@@ -244,17 +267,20 @@ def main():
                     item['thumb'] = get_picture_url(i['PHOTO_'])
                     item['time'] = i['ST_TIM']
                     item['date'] = i['ST_TIM'].split(' ')[0]
-                    item['summary'] = i['METDEC']
+                    item['summary'] = i['METDEC'].replace('\n', '')
                     item['order'] = i['R']
                     item['comit_code'] = comit_id
+                    item['firm'] = 'clip'
                     item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['order'], item['speaker'])
                     item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                    item['finished'] = None
                     single_list.append(item)
                     random_sleep()
                     #print item
                     if not options.nd:
-                        download_resource(item)
+                        item['finish'] = download_resource(item, limit_speed)
                         random_sleep()
+                    database.insert_data(item)
             #print full_list
             print single_list
             full_info = {'whole': full_list, 'clips': single_list}

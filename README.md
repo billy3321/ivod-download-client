@@ -4,11 +4,13 @@ ivod-download-client
 Usage：
 ======
 
-./ivod-downloader.py -l '2014-01-01'
+./ivod-downloader.py -d '2014-01-01'
 
--l 從該日期開始下載
+-d 從該日期開始下載
 
 -n 不下載圖片及影片，只抓資料
+
+-l 速度限制，單位為kb/s
 
 
 抓下來的檔案會放在data資料夾中，目錄結構為：

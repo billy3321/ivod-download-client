@@ -217,6 +217,9 @@ def main():
         print "Please check PHP extensions."
         sys.exit(1)
     config = config_parser('config.json')
+    if not config:
+        print 'config error.'
+        sys.exit(1)
     database = db.Database(config['db'])
     for comit_id in committee.keys():
         date_list = get_date_list(comit_id, start_date)
@@ -269,10 +272,10 @@ def main():
                     item['time'] = i['ST_TIM']
                     item['date'] = i['ST_TIM'].split(' ')[0]
                     item['summary'] = i['METDEC'].replace('\n', '')
-                    item['order'] = i['R']
+                    item['no'] = i['R']
                     item['comit_code'] = comit_id
                     item['firm'] = 'clip'
-                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['order'], item['speaker'])
+                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['no'], item['speaker'])
                     item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     item['finished'] = None
                     single_list.append(item)

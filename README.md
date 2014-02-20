@@ -4,6 +4,12 @@ ivod-download-client
 Usage：
 ======
 
+首先先複製設定檔
+
+cp config.json.default config.json
+
+接著執行主程式
+
 ./ivod-downloader.py -d '2014-01-01'
 
 -d 從該日期開始下載

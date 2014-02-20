@@ -237,7 +237,7 @@ def main():
                 item['session'] = i['DUTION']
                 item['sitting'] = None
                 item['wmvid'] = i['MEREID']
-                item['time'] = i['ST_TIM']
+                item['time'] = i['ST_TIM'].split(' ')[1]
                 item['video_url_n'] = get_movie_url(i['MEREID'], 'whole', 'n')
                 item['video_url_w'] = get_movie_url(i['MEREID'], 'whole', 'w')
                 item['date'] = i['ST_TIM'].split(' ')[0]
@@ -246,7 +246,11 @@ def main():
                 item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
                 item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                 item['finished'] = None
+                item['num'] = None
+                item['ext'] = 'flv'
                 item['firm'] = 'whole'
+                item['length'] = None
+                item['speaker'] = None
                 full_list.append(item)
                 random_sleep()
                 #print item
@@ -269,13 +273,14 @@ def main():
                     item['video_url_w'] = get_movie_url(i['WZS_ID'], 'clip', 'w')
                     item['speaker'] = i['CH_NAM']
                     item['thumb'] = get_picture_url(i['PHOTO_'])
-                    item['time'] = i['ST_TIM']
+                    item['time'] = i['ST_TIM'].split(' ')[1]
                     item['date'] = i['ST_TIM'].split(' ')[0]
                     item['summary'] = i['METDEC'].replace('\n', '')
-                    item['no'] = i['R']
+                    item['num'] = i['R']
                     item['comit_code'] = comit_id
                     item['firm'] = 'clip'
-                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['no'], item['speaker'])
+                    item['ext'] = 'flv'
+                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                     item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     item['finished'] = None
                     single_list.append(item)

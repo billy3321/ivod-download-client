@@ -156,6 +156,8 @@ def download_resource(item, limit_speed = 0):
     if item.has_key('thumb') and item['thumb'] and check_url(item['thumb']):
         extension = os.path.splitext(item['thumb'])[-1]
         full_path = '%s/%s%s' % (path, filename, extension)
+        if os.path.exists(full_path):
+            os.remove(full_path)
         cmd = "wget -O '%s' '%s'" % (full_path, item['thumb'])
         #print cmd
         #os.system(cmd)
@@ -244,7 +246,7 @@ def main():
                 item['summary'] = i['METDEC'].replace('\n', '')
                 item['comit_code'] = comit_id
                 item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
-                item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                 item['finished'] = None
                 item['num'] = None
                 item['ext'] = 'flv'
@@ -281,7 +283,7 @@ def main():
                     item['firm'] = 'clip'
                     item['ext'] = 'flv'
                     item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
-                    item['path'] = os.path.join('data', item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                    item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     item['finished'] = None
                     single_list.append(item)
                     random_sleep()

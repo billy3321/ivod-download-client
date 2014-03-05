@@ -167,14 +167,14 @@ def download_resource(item, limit_speed = 0):
         filename_n = '%s_n' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
         #print cmd
-        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', limit_speed])
+        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed]))
         #os.system(cmd)
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
         filename_w = '%s_w' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
         #print cmd
-        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', limit_speed])
+        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed]))
         #os.system(cmd)
 
 def write_config(info):

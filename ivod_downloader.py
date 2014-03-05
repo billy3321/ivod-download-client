@@ -69,6 +69,7 @@ def get_date_list(comt, limit=None):
     web = urllib2.urlopen(req)
     if web.getcode() == 200:
         html = web.read()
+        print html
         result = json.loads(html)
         date_list = []
         for i in result['mdate']:
@@ -253,11 +254,12 @@ def main():
                 item['firm'] = 'whole'
                 item['length'] = None
                 item['speaker'] = None
+                item['thumb'] = None
                 full_list.append(item)
                 random_sleep()
                 #print item
                 if not options.nd:
-                    item['finish'] = download_resource(item, limit_speed)
+                    item['finished'] = download_resource(item, limit_speed)
                     random_sleep()
                 database.insert_data(item)
             for num in xrange(1, (page_num + 1)):
@@ -289,7 +291,7 @@ def main():
                     random_sleep()
                     #print item
                     if not options.nd:
-                        item['finish'] = download_resource(item, limit_speed)
+                        item['finished'] = download_resource(item, limit_speed)
                         random_sleep()
                     database.insert_data(item)
             #print full_list

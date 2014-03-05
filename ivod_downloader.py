@@ -69,7 +69,9 @@ def get_date_list(comt, limit=None):
     web = urllib2.urlopen(req)
     if web.getcode() == 200:
         html = web.read()
-        print html
+        #print type(html)
+        #print html
+        html = html.decode('utf-8-sig')
         result = json.loads(html)
         date_list = []
         for i in result['mdate']:
@@ -97,6 +99,7 @@ def get_movie_by_date(comit, date, page=1):
     web = urllib2.urlopen(req)
     if web.getcode() == 200:
         html_result = web.read()
+        html_result = html_result.decode('utf-8-sig')
         #print html_result
         result = json.loads(html_result)
         return result

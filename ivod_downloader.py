@@ -148,6 +148,8 @@ def random_sleep():
 def download_resource(item, limit_speed = 0): 
     path = item['path']
     filename = item['filename']
+    return_code1 = 0
+    return_code2 = 0
     if not os.path.exists(path):
         os.makedirs(path)
     elif not os.path.isdir(path):
@@ -168,15 +170,21 @@ def download_resource(item, limit_speed = 0):
         filename_n = '%s_n' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
         #print cmd
-        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
+        return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
+
         #os.system(cmd)
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
         filename_w = '%s_w' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
         #print cmd
-        subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
+        return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         #os.system(cmd)
+    if return_code1 == 0 and return_code2 == 0:
+        return 1
+    else:
+        return 2
+    
 
 def write_config(info):
     path = info['whole'][0]['path']
@@ -248,7 +256,7 @@ def main():
                 item['comit_code'] = comit_id
                 item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
                 item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                item['finished'] = None
+                item['finished'] = 0
                 item['num'] = None
                 item['ext'] = 'flv'
                 item['firm'] = 'whole'
@@ -286,7 +294,7 @@ def main():
                     item['ext'] = 'flv'
                     item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                     item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                    item['finished'] = None
+                    item['finished'] = 0
                     single_list.append(item)
                     random_sleep()
                     #print item

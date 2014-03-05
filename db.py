@@ -36,9 +36,9 @@ class Database(Singleton):
     def insert_data(self, data):
         sql = 'REPLACE INTO ivod_index (ad, session, sitting, date, firm, num, length, wmvid, \
             video_url_n, video_url_w, speaker, thumb, time, summary, \
-            comit_code, filename, ext, path, finished) VALUES (%(ad)s, \
-            %(session)s, %(sitting)s, %(date)s, %(firm)s, %(num)s, \
-            %(length)s, %(wmvid)s, %(video_url_n)s, %(video_url_w)s, \
-            %(speaker)s, %(thumb)s, %(time)s, %(summary)s, %(comit_code)s, \
-            %(filename)s, %(ext)s, %(path)s, %(finished)d );' % data
+            comit_code, filename, ext, path, finished) VALUES ("%(ad)s", \
+            "%(session)s", "%(sitting)s", "%(date)s", "%(firm)s", "%(num)s", \
+            "%(length)s", "%(wmvid)s", "%(video_url_n)s", "%(video_url_w)s", \
+            "%(speaker)s", "%(thumb)s", "%(time)s", "%(summary)s", "%(comit_code)s", \
+            "%(filename)s", "%(ext)s", "%(path)s", "%(finished)d" );' % data
         self.cursor.execute(sql)

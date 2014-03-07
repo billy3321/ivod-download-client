@@ -13,6 +13,20 @@
   define('INVALID_TIMESTAMP', -1);
   define('STOP_PROCESSING', 2);
 
+  // Fallback function if the PHP Server does not have the array_replace function
+  if ( !function_exists('array_replace') ) {
+
+    function array_replace() {
+      $array = array();
+      $n = func_num_args();
+
+      while ( $n-- > 0 ) {
+        $array+=func_get_arg($n);
+      }
+      return $array;
+    }
+  }
+
   class CLI
     {
       protected static $ACCEPTED = array();

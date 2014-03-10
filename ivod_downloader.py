@@ -172,6 +172,11 @@ def download_resource(item, limit_speed = 0):
     if item.has_key('video_url_n') and item['video_url_n'] and check_url(item['video_url_n']):
         filename_n = '%s_n' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
+        if item['firm'] == 'whole':
+            print u'開始嘗試下載%s的%s委員會窄頻完整影片' % (item['date'], committee[item['comit_code']]['name'])
+        elif item['firm'] == 'clip':
+            print u'開始嘗試下載%s的%s委員會，第%s段%s窄頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
+        print u'影片網址為：%s' % item['video_url_n']
         #print cmd
         return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
 
@@ -181,6 +186,12 @@ def download_resource(item, limit_speed = 0):
         filename_w = '%s_w' % filename
         cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
         #print cmd
+        
+        if item['firm'] == 'whole':
+            print u'開始嘗試下載%s的%s委員會寬頻完整影片' % (item['date'], committee[item['comit_code']]['name'])
+        elif item['firm'] == 'clip':
+            print u'開始嘗試下載%s的%s委員會，第%s段%s寬頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
+        print u'影片網址為：%s' % item['video_url_n']
         return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         #os.system(cmd)
     if return_code1 == 0 and return_code2 == 0:
@@ -236,6 +247,7 @@ def main():
         sys.exit(1)
     database = db.Database(config['db'])
     for comit_id in committee.keys():
+        print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
         date_list = get_date_list(comit_id, start_date)
 
         print date_list

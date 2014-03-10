@@ -78,7 +78,7 @@ def get_date_list(comt, limit=None):
             if not limit:
                 date_list.append(i['METDAT'])
             elif limit:
-                if i['METDAT'] > limit:
+                if i['METDAT'] >= limit:
                     date_list.append(i['METDAT'])
         return date_list
     else:

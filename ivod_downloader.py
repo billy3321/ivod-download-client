@@ -223,6 +223,8 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("-d", "--date", dest="start_date",
                       help='get video after date, format is %Y-%m-%d')
+    parser.add_option("-c", "--committee", dest="comit_code",
+                      help='parse committee, please input code.')
     parser.add_option("-n", "--no-download",
                       action="store_true", dest="nd", help="don't download resource")
     parser.add_option("-l", "--limit-speed", dest="limit_speed",
@@ -237,93 +239,103 @@ def main():
             raise ValueError("Incorrect data format, should be YYYY-MM-DD")
     else:
         start_date = None
+
+    if options.comit_code:
+        comit_code = options.comit_code
+    else:
+        comit_code = None
+
     if not options.limit_speed:
         limit_speed = 0
     else:
         limit_speed = options.limit_speed
+
     if not test_php():
         print "Please check PHP extensions."
         sys.exit(1)
     config = config_parser('config.json')
+
     if not config:
         print 'config error.'
         sys.exit(1)
     database = db.Database(config['db'])
-    for comit_id in committee.keys():
-        print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
-        date_list = get_date_list(comit_id, start_date)
 
-        print date_list
-        for date in date_list:
-            movie_list = get_movie_by_date(comit_id, date, 1)
-            page_num = (int(movie_list['total']) / 5) + 1
-            full_list = []
-            single_list = []
-            for i in movie_list['full']:
-                #print i
-                item = {}
-                item['ad'] = i['STAGE_']
-                item['session'] = i['DUTION']
-                item['sitting'] = None
-                item['wmvid'] = i['MEREID']
-                item['time'] = i['ST_TIM'].split(' ')[1]
-                item['video_url_n'] = get_movie_url(i['MEREID'], 'whole', 'n')
-                item['video_url_w'] = get_movie_url(i['MEREID'], 'whole', 'w')
-                item['date'] = i['ST_TIM'].split(' ')[0]
-                item['summary'] = i['METDEC'].replace('\n', '')
-                item['comit_code'] = comit_id
-                item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
-                item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                item['finished'] = 0
-                item['num'] = None
-                item['ext'] = 'flv'
-                item['firm'] = 'whole'
-                item['length'] = None
-                item['speaker'] = None
-                item['thumb'] = None
-                full_list.append(item)
-                random_sleep()
-                #print item
-                if not options.nd:
-                    item['finished'] = download_resource(item, limit_speed)
-                    random_sleep()
-                database.insert_data(item)
-            for num in xrange(1, (page_num + 1)):
-                if num != 1:
-                    movie_list = get_movie_by_date(comit_id, date, num)
-                for i in movie_list['result']:
-                    item = {}
+    for comit_id in committee.keys():
+        if not comit_code or comit_code == committee[comit_id]['code']:
+            print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
+            date_list = get_date_list(comit_id, start_date)
+
+            print date_list
+            for date in date_list:
+                movie_list = get_movie_by_date(comit_id, date, 1)
+                page_num = (int(movie_list['total']) / 5) + 1
+                full_list = []
+                single_list = []
+                for i in movie_list['full']:
                     #print i
+                    item = {}
                     item['ad'] = i['STAGE_']
                     item['session'] = i['DUTION']
                     item['sitting'] = None
-                    item['length'] = i['MOVTIM']
-                    item['wmvid'] = i['WZS_ID']
-                    item['video_url_n'] = get_movie_url(i['WZS_ID'], 'clip', 'n')
-                    item['video_url_w'] = get_movie_url(i['WZS_ID'], 'clip', 'w')
-                    item['speaker'] = i['CH_NAM']
-                    item['thumb'] = get_picture_url(i['PHOTO_'])
+                    item['wmvid'] = i['MEREID']
                     item['time'] = i['ST_TIM'].split(' ')[1]
+                    item['video_url_n'] = get_movie_url(i['MEREID'], 'whole', 'n')
+                    item['video_url_w'] = get_movie_url(i['MEREID'], 'whole', 'w')
                     item['date'] = i['ST_TIM'].split(' ')[0]
                     item['summary'] = i['METDEC'].replace('\n', '')
-                    item['num'] = i['R']
                     item['comit_code'] = comit_id
-                    item['firm'] = 'clip'
-                    item['ext'] = 'flv'
-                    item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
+                    item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
                     item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     item['finished'] = 0
-                    single_list.append(item)
+                    item['num'] = None
+                    item['ext'] = 'flv'
+                    item['firm'] = 'whole'
+                    item['length'] = None
+                    item['speaker'] = None
+                    item['thumb'] = None
+                    full_list.append(item)
                     random_sleep()
                     #print item
                     if not options.nd:
                         item['finished'] = download_resource(item, limit_speed)
                         random_sleep()
                     database.insert_data(item)
-            #print full_list
-            print single_list
-            full_info = {'whole': full_list, 'clips': single_list}
-            write_config(full_info)
+                for num in xrange(1, (page_num + 1)):
+                    if num != 1:
+                        movie_list = get_movie_by_date(comit_id, date, num)
+                    for i in movie_list['result']:
+                        item = {}
+                        #print i
+                        item['ad'] = i['STAGE_']
+                        item['session'] = i['DUTION']
+                        item['sitting'] = None
+                        item['length'] = i['MOVTIM']
+                        item['wmvid'] = i['WZS_ID']
+                        item['video_url_n'] = get_movie_url(i['WZS_ID'], 'clip', 'n')
+                        item['video_url_w'] = get_movie_url(i['WZS_ID'], 'clip', 'w')
+                        item['speaker'] = i['CH_NAM']
+                        item['thumb'] = get_picture_url(i['PHOTO_'])
+                        item['time'] = i['ST_TIM'].split(' ')[1]
+                        item['date'] = i['ST_TIM'].split(' ')[0]
+                        item['summary'] = i['METDEC'].replace('\n', '')
+                        item['num'] = i['R']
+                        item['comit_code'] = comit_id
+                        item['firm'] = 'clip'
+                        item['ext'] = 'flv'
+                        item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
+                        item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                        item['finished'] = 0
+                        single_list.append(item)
+                        random_sleep()
+                        #print item
+                        if not options.nd:
+                            item['finished'] = download_resource(item, limit_speed)
+                            random_sleep()
+                        database.insert_data(item)
+                #print full_list
+                #print single_list
+                full_info = {'whole': full_list, 'clips': single_list}
+                write_config(full_info)
 
 
 if __name__ == '__main__':

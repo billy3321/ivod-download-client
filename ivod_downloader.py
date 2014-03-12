@@ -6,6 +6,9 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
 import db
 
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 base_url = 'http://ivod.ly.gov.tw/'
 committee_url = 'http://ivod.ly.gov.tw/Committee/CommsDate'

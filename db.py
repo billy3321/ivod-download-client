@@ -38,9 +38,9 @@ class Database(Singleton):
 
     def insert_data(self, data):
         #print data
-        sql = 'REPLACE INTO ivod_index (`ad`, `session`, `sitting`, `date`, `firm`, `num`, `length`, `wmvid`, `\
-            video_url_n`, `video_url_w`, `speaker`, `thumb`, `time`, `summary`, `\
-            comit_code`, `filename`, `ext`, `path`, `finished`) VALUES \
+        sql = 'REPLACE INTO ivod_index (`ad`, `session`, `sitting`, `date`, `firm`, `num`, `length`, `wmvid`, \
+            `video_url_n`, `video_url_w`, `speaker`, `thumb`, `time`, `summary`, \
+            `comit_code`, `filename`, `ext`, `path`, `finished`) VALUES \
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );'
         #print sql
 

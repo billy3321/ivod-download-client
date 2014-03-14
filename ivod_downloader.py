@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib, urllib2, json, cookielib, os, sys, random, time, datetime, subprocess
+import os, urllib, urllib2, json, cookielib, sys, random, time, datetime, subprocess
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
+
+os.chdir(os.path.dirname(__file__))
+
 import db
 
 reload(sys)
@@ -203,8 +206,8 @@ def download_resource(item, limit_speed = 0):
         return 2
     
 
-def write_config(info):
-    path = info['whole'][0]['path']
+def write_config(info, path):
+    #print info
     if not os.path.exists(path):
         os.makedirs(path)
     full_path = os.path.join(path, 'info.json')
@@ -286,17 +289,17 @@ def main():
                     item['comit_code'] = comit_id
                     item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
                     item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                    item['finished'] = 0
                     item['num'] = None
                     item['ext'] = 'flv'
                     item['firm'] = 'whole'
                     item['length'] = None
                     item['speaker'] = None
                     item['thumb'] = None
+                    item['finished'] = databse.query_if_finished(item)
                     full_list.append(item)
                     random_sleep()
                     #print item
-                    if not options.nd:
+                    if not options.nd or not item['finished']:
                         item['finished'] = download_resource(item, limit_speed)
                         random_sleep()
                     database.insert_data(item)
@@ -324,18 +327,18 @@ def main():
                         item['ext'] = 'flv'
                         item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                         item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                        item['finished'] = 0
+                        item['finished'] = databse.query_if_finished(item)
                         single_list.append(item)
                         random_sleep()
                         #print item
-                        if not options.nd:
+                        if not options.nd or not item['finished']:
                             item['finished'] = download_resource(item, limit_speed)
                             random_sleep()
                         database.insert_data(item)
                 #print full_list
                 #print single_list
                 full_info = {'whole': full_list, 'clips': single_list}
-                write_config(full_info)
+                write_config(full_info, config['download']['path'])
 
 
 if __name__ == '__main__':

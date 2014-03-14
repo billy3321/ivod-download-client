@@ -29,16 +29,36 @@ class Database(Singleton):
             length text, wmvid text, video_url_n text, video_url_w text, \
             speaker text, thumb text, time text, summary text,\
         	comit_code text, filename text, ext text, path text, finished int);'
+        #print sql
         self.cursor.execute(sql)
-        sql = 'CREATE UNIQUE INDEX IF NOT EXISTS id ON ivod_index (ad, session, sitting, date, firm, num);'
+
+        sql = 'CREATE UNIQUE INDEX IF NOT EXISTS id ON ivod_index (`firm`, `wmvid`);'
+        #print sql
         self.cursor.execute(sql)
 
     def insert_data(self, data):
-        sql = 'REPLACE INTO ivod_index (ad, session, sitting, date, firm, num, length, wmvid, \
-            video_url_n, video_url_w, speaker, thumb, time, summary, \
-            comit_code, filename, ext, path, finished) VALUES ("%(ad)s", \
-            "%(session)s", "%(sitting)s", "%(date)s", "%(firm)s", "%(num)s", \
-            "%(length)s", "%(wmvid)s", "%(video_url_n)s", "%(video_url_w)s", \
-            "%(speaker)s", "%(thumb)s", "%(time)s", "%(summary)s", "%(comit_code)s", \
-            "%(filename)s", "%(ext)s", "%(path)s", "%(finished)d" );' % data
-        self.cursor.execute(sql)
+        #print data
+        sql = 'REPLACE INTO ivod_index (`ad`, `session`, `sitting`, `date`, `firm`, `num`, `length`, `wmvid`, `\
+            video_url_n`, `video_url_w`, `speaker`, `thumb`, `time`, `summary`, `\
+            comit_code`, `filename`, `ext`, `path`, `finished`) VALUES \
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );'
+        #print sql
+
+        self.cursor.execute(sql, (data['ad'], data['session'], data['sitting'], data['date'], data['firm'], \
+            data['num'], data['length'], data['wmvid'], data['video_url_n'], data['video_url_w'], \
+            data['speaker'], data['thumb'], data['time'], data['summary'], data['comit_code'], \
+            data['filename'], data['ext'], data['path'], data['finished']))
+        self.db.commit()
+
+    def query_if_finished(self, data):
+        #print data
+
+        sql = 'SELECT finished FROM ivod_index WHERE `firm` = ? AND `wmvid` = ? ;'
+        self.cursor.execute(sql, (data['firm'], data['wmvid']))
+
+        result = self.cursor.fetchall()
+        #print result
+        if len(result):
+            return result[0][0]
+        else:
+            return 0

@@ -295,7 +295,7 @@ def main():
                     item['length'] = None
                     item['speaker'] = None
                     item['thumb'] = None
-                    item['finished'] = databse.query_if_finished(item)
+                    item['finished'] = database.query_if_finished(item)
                     full_list.append(item)
                     random_sleep()
                     #print item
@@ -327,7 +327,7 @@ def main():
                         item['ext'] = 'flv'
                         item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                         item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                        item['finished'] = databse.query_if_finished(item)
+                        item['finished'] = database.query_if_finished(item)
                         single_list.append(item)
                         random_sleep()
                         #print item

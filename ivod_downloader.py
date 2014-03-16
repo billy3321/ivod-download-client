@@ -12,7 +12,7 @@ import db
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
+currect_time = 0
 base_url = 'http://ivod.ly.gov.tw/'
 committee_url = 'http://ivod.ly.gov.tw/Committee/CommsDate'
 
@@ -56,11 +56,15 @@ def init_cookie():
     reset_cookie()
 
 def reset_cookie():
-    http_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 'Host': 'ivod.ly.gov.tw'}
-    req = urllib2.Request('http://ivod.ly.gov.tw/', None, http_header)
-    web = urllib2.urlopen(req)
-    result = web.read()
-    #print result
+    global currect_time
+    #if time lagger then 15 min, will reset.
+    if time.time() - currect_time > 900:
+        currect_time = time.time()
+        http_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 'Host': 'ivod.ly.gov.tw'}
+        req = urllib2.Request('http://ivod.ly.gov.tw/', None, http_header)
+        web = urllib2.urlopen(req)
+        result = web.read()
+        #print result
 
 def get_date_list(comt, limit=None):
     http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
@@ -264,12 +268,15 @@ def main():
     database = db.Database(config['db'])
 
     for comit_id in committee.keys():
+        reset_cookie()
         if not comit_code or comit_code == committee[comit_id]['code']:
             print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
             date_list = get_date_list(comit_id, start_date)
-
+            date_list.sort(reverse=True)
             print date_list
             for date in date_list:
+                reset_cookie()
+                random_sleep()
                 movie_list = get_movie_by_date(comit_id, date, 1)
                 page_num = (int(movie_list['total']) / 5) + 1
                 full_list = []

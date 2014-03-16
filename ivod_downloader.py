@@ -306,7 +306,7 @@ def main():
                     full_list.append(item)
                     random_sleep()
                     #print item
-                    if not options.nd or not item['finished']:
+                    if not options.nd and not item['finished']:
                         item['finished'] = download_resource(item, limit_speed)
                         random_sleep()
                     database.insert_data(item)
@@ -338,7 +338,7 @@ def main():
                         single_list.append(item)
                         random_sleep()
                         #print item
-                        if not options.nd or not item['finished']:
+                        if not options.nd and not item['finished']:
                             item['finished'] = download_resource(item, limit_speed)
                             random_sleep()
                         database.insert_data(item)

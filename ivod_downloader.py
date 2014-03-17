@@ -189,7 +189,7 @@ def download_resource(item, limit_speed = 0):
         print u'影片網址為：%s' % item['video_url_n']
         #print cmd
         return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
-        print ['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)]
+        print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_n)):
             return_code1 = 1
 
@@ -206,7 +206,7 @@ def download_resource(item, limit_speed = 0):
             print u'開始嘗試下載%s的%s委員會，第%s段%s寬頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
         print u'影片網址為：%s' % item['video_url_n']
         return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
-        print ['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)]
+        print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_w)):
             return_code2 = 1
         #os.system(cmd)

@@ -229,6 +229,12 @@ def test_php():
     result = os.system(cmd)
     return result == 0
 
+def check_file_downloaded(path, filename):
+    if os.path.exists(os.path.join(path, filename)):
+        return 1
+    else:
+        return 0
+
 def main():
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
@@ -306,7 +312,11 @@ def main():
                     item['length'] = None
                     item['speaker'] = None
                     item['thumb'] = None
-                    item['finished'] = database.query_if_finished(item)
+                    if check_file_downloaded(item['path'], (item['filename'] + '_n.flv')) and check_file_downloaded(item['path'], (item['filename'] + '_w.flv')):
+                        item['finished'] = 1
+                    else:
+                        item['finished'] = 0
+                    #item['finished'] = database.query_if_finished(item)
                     full_list.append(item)
                     random_sleep()
                     #print item
@@ -338,7 +348,11 @@ def main():
                         item['ext'] = 'flv'
                         item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                         item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
-                        item['finished'] = database.query_if_finished(item)
+                        #item['finished'] = database.query_if_finished(item)
+                        if check_file_downloaded(item['path'], (item['filename'] + '_n.flv')) and check_file_downloaded(item['path'], (item['filename'] + '_w.flv')):
+                            item['finished'] = 1
+                        else:
+                            item['finished'] = 0
                         single_list.append(item)
                         random_sleep()
                         #print item

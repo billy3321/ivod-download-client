@@ -10,7 +10,7 @@ os.chdir(os.path.dirname(__file__))
 import db
 
 reload(sys)
-sys.setdefaultencoding('utf8')
+sys.setdefaultencoding('utf-8')
 
 currect_time = 0
 base_url = 'http://ivod.ly.gov.tw/'
@@ -189,6 +189,8 @@ def download_resource(item, limit_speed = 0):
         print u'影片網址為：%s' % item['video_url_n']
         #print cmd
         return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
+        if not os.path.exists(os.path.join(path, filename_n)):
+            return_code1 = 1
 
         #os.system(cmd)
 
@@ -203,11 +205,13 @@ def download_resource(item, limit_speed = 0):
             print u'開始嘗試下載%s的%s委員會，第%s段%s寬頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
         print u'影片網址為：%s' % item['video_url_n']
         return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
+        if not os.path.exists(os.path.join(path, filename_w)):
+            return_code2 = 1
         #os.system(cmd)
     if return_code1 == 0 and return_code2 == 0:
         return 1
     else:
-        return 2
+        return 0
     
 
 def write_config(info, path):

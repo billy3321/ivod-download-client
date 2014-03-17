@@ -284,10 +284,11 @@ def main():
                 for i in movie_list['full']:
                     #print i
                     item = {}
+                    item['firm'] = 'whole'
+                    item['wmvid'] = i['MEREID']
                     item['ad'] = i['STAGE_']
                     item['session'] = i['DUTION']
                     item['sitting'] = None
-                    item['wmvid'] = i['MEREID']
                     item['time'] = i['ST_TIM'].split(' ')[1]
                     item['video_url_n'] = get_movie_url(i['MEREID'], 'whole', 'n')
                     item['video_url_w'] = get_movie_url(i['MEREID'], 'whole', 'w')
@@ -298,7 +299,6 @@ def main():
                     item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
                     item['num'] = None
                     item['ext'] = 'flv'
-                    item['firm'] = 'whole'
                     item['length'] = None
                     item['speaker'] = None
                     item['thumb'] = None
@@ -316,11 +316,12 @@ def main():
                     for i in movie_list['result']:
                         item = {}
                         #print i
+                        item['wmvid'] = i['WZS_ID']
+                        item['firm'] = 'clip'
                         item['ad'] = i['STAGE_']
                         item['session'] = i['DUTION']
                         item['sitting'] = None
                         item['length'] = i['MOVTIM']
-                        item['wmvid'] = i['WZS_ID']
                         item['video_url_n'] = get_movie_url(i['WZS_ID'], 'clip', 'n')
                         item['video_url_w'] = get_movie_url(i['WZS_ID'], 'clip', 'w')
                         item['speaker'] = i['CH_NAM']
@@ -330,7 +331,6 @@ def main():
                         item['summary'] = i['METDEC'].replace('\n', '')
                         item['num'] = i['R']
                         item['comit_code'] = comit_id
-                        item['firm'] = 'clip'
                         item['ext'] = 'flv'
                         item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
                         item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])

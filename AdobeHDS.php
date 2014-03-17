@@ -51,16 +51,16 @@
                   if ($isSwitch)
                       $arg = preg_replace('/^-+/', '', $arg);
 
-                  if ($paramSwitch && $isSwitch)
+                  if ($paramSwitch and $isSwitch)
                       $this->error("[param] expected after '$paramSwitch' switch (" . self::$ACCEPTED[1][$paramSwitch] . ')');
-                  else if (!$paramSwitch && !$isSwitch)
+                  else if (!$paramSwitch and !$isSwitch)
                     {
                       if ($handleUnknown)
                           $this->params['unknown'][] = $arg;
                       else
                           $this->error("'$arg' is an invalid option, use --help to display valid switches.");
                     }
-                  else if (!$paramSwitch && $isSwitch)
+                  else if (!$paramSwitch and $isSwitch)
                     {
                       if (isset($this->params[$arg]))
                           $this->error("'$arg' switch can't occur more than once");
@@ -71,7 +71,7 @@
                       else if (!isset(self::$ACCEPTED[0][$arg]))
                           $this->error("there's no '$arg' switch, use --help to display all switches.");
                     }
-                  else if ($paramSwitch && !$isSwitch)
+                  else if ($paramSwitch and !$isSwitch)
                     {
                       $this->params[$paramSwitch] = $arg;
                       $paramSwitch                = false;
@@ -81,7 +81,7 @@
 
           // Final check
           foreach ($this->params as $k => $v)
-              if (isset(self::$ACCEPTED[1][$k]) && $v === true)
+              if (isset(self::$ACCEPTED[1][$k]) and $v === true)
                   $this->error("[param] expected after '$k' switch (" . self::$ACCEPTED[1][$k] . ')');
         }
 
@@ -512,6 +512,8 @@
                       $bitrate = $childManifest['bitrate'];
                   else
                       $bitrate = $count++;
+                  while (isset($this->media[$bitrate]))
+                      $bitrate++;
                   $streamId = isset($stream[strtolower('streamId')]) ? $stream[strtolower('streamId')] : "";
                   $mediaEntry =& $this->media[$bitrate];
 
@@ -519,6 +521,18 @@
                   $mediaEntry['url']     = $stream['url'];
                   if (isRtmpUrl($mediaEntry['baseUrl']) or isRtmpUrl($mediaEntry['url']))
                       LogError("Provided manifest is not a valid HDS manifest");
+
+                  // Use embedded auth information when available
+                  $idx = strpos($mediaEntry['url'], '?');
+                  if ($idx !== false)
+                    {
+                      $mediaEntry['queryString'] = substr($mediaEntry['url'], $idx);
+                      $mediaEntry['url']         = substr($mediaEntry['url'], 0, $idx);
+                      if (strlen($this->auth) != 0 and strcmp($this->auth, $mediaEntry['queryString']) != 0)
+                          LogDebug("Manifest overrides 'auth': " . $mediaEntry['queryString']);
+                    }
+                  else
+                      $mediaEntry['queryString'] = $this->auth;
 
                   if (isset($stream[strtolower('bootstrapInfoId')]))
                       $bootstrap = $xml->xpath("/ns:manifest/ns:bootstrapInfo[@id='" . $stream[strtolower('bootstrapInfoId')] . "']");
@@ -863,6 +877,8 @@
           $this->lastFrag  = $fragNum;
           $opt['cc']       = $cc;
           $opt['duration'] = 0;
+          $firstFragment   = reset($this->fragTable);
+          LogInfo(sprintf("Fragments Total: %s, First: %s, Start: %s, Parallel: %s", $this->fragCount, $firstFragment['firstFragment'], $fragNum + 1, $this->parallel));
 
           // Extract baseFilename
           $this->baseFilename = $this->media['url'];
@@ -929,7 +945,7 @@
 
                   LogDebug("Adding fragment $fragNum to download queue");
                   $segNum = $this->GetSegmentFromFragment($fragNum);
-                  $cc->addDownload($this->fragUrl . "Seg" . $segNum . "-Frag" . $fragNum . $this->auth, $fragNum);
+                  $cc->addDownload($this->fragUrl . "Seg" . $segNum . "-Frag" . $fragNum . $this->media['queryString'], $fragNum);
                 }
 
               $downloads = $cc->checkDownloads();
@@ -1550,7 +1566,7 @@
 
       foreach ($inSegs as $seg)
         {
-          if ($seg == '' || $seg == '.')
+          if ($seg == '' or $seg == '.')
               continue;
           if ($seg == '..')
               array_pop($outSegs);
@@ -1677,13 +1693,13 @@
       if ($strict)
         {
           foreach ($haystack as $item)
-              if (isset($item[$needle_field]) && $item[$needle_field] === $needle)
+              if (isset($item[$needle_field]) and $item[$needle_field] === $needle)
                   return true;
         }
       else
         {
           foreach ($haystack as $item)
-              if (isset($item[$needle_field]) && $item[$needle_field] == $needle)
+              if (isset($item[$needle_field]) and $item[$needle_field] == $needle)
                   return true;
         }
       return false;
@@ -1694,13 +1710,13 @@
       if ($strict)
         {
           foreach ($haystack as $item)
-              if (isset($item[$needle_field]) && $item[$needle_field] === $needle)
+              if (isset($item[$needle_field]) and $item[$needle_field] === $needle)
                   return $item[$value_field];
         }
       else
         {
           foreach ($haystack as $item)
-              if (isset($item[$needle_field]) && $item[$needle_field] == $needle)
+              if (isset($item[$needle_field]) and $item[$needle_field] == $needle)
                   return $item[$value_field];
         }
       return false;
@@ -1778,14 +1794,17 @@
     }
 
   // Check for required extensions
-  $extensions = array(
+  $required_extensions = array(
       "bcmath",
       "curl",
       "SimpleXML"
   );
-  foreach ($extensions as $extension)
-      if (!extension_loaded($extension))
-          LogError("You don't have '$extension' extension installed. please install it before continuing.");
+  $missing_extensions  = array_diff($required_extensions, get_loaded_extensions());
+  if ($missing_extensions)
+    {
+      $msg = "You have to install the following extension(s) to continue: '" . implode("', '", $missing_extensions) . "'";
+      LogError($msg);
+    }
 
   // Initialize classes
   $cc  = new cURL();

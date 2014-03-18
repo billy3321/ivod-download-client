@@ -325,6 +325,10 @@ def main():
                     if not options.nd and not item['finished']:
                         item['finished'] = download_resource(item, limit_speed)
                         random_sleep()
+                        #retry once
+                        if not item['finished']:
+                            item['finished'] = download_resource(item, limit_speed)
+                            random_sleep()
                     database.insert_data(item)
                 for num in xrange(1, (page_num + 1)):
                     if num != 1:
@@ -361,6 +365,10 @@ def main():
                         if not options.nd and not item['finished']:
                             item['finished'] = download_resource(item, limit_speed)
                             random_sleep()
+                            #retry once
+                            if not item['finished']:
+                                item['finished'] = download_resource(item, limit_speed)
+                                random_sleep()
                         database.insert_data(item)
                 #print full_list
                 #print single_list

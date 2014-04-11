@@ -12,7 +12,9 @@ cp config.json.default config.json
 
 ./ivod-downloader.py -d '2014-01-01'
 
--d 從該日期開始下載
+-s 從該日期開始下載
+
+-e 下載到該日期
 
 -n 不下載圖片及影片，只抓資料
 

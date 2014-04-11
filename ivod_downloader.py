@@ -66,7 +66,7 @@ def reset_cookie():
         result = web.read()
         #print result
 
-def get_date_list(comt, limit=None):
+def get_date_list(comt, start_date=None, end_date=None):
     http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
         'Accept': '*/*',
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
@@ -76,6 +76,10 @@ def get_date_list(comt, limit=None):
         'Pragma': 'no-cache'}
     req = urllib2.Request('http://ivod.ly.gov.tw/Committee/CommsDate', urllib.urlencode({'comtid': comt}), http_header)
     #try:
+    if not start_date:
+        start_date = '2011-01-01'
+    if not end_date:
+        end_date = datetime.datetime.now().strftime('%Y-%m-%d')
     web = urllib2.urlopen(req)
     if web.getcode() == 200:
         html = web.read()
@@ -85,11 +89,8 @@ def get_date_list(comt, limit=None):
         result = json.loads(html)
         date_list = []
         for i in result['mdate']:
-            if not limit:
+            if end_date >= i['METDAT'] >= start_date:
                 date_list.append(i['METDAT'])
-            elif limit:
-                if i['METDAT'] >= limit:
-                    date_list.append(i['METDAT'])
         return date_list
     else:
         return False
@@ -240,8 +241,10 @@ def check_file_downloaded(path, filename):
 def main():
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
-    parser.add_option("-d", "--date", dest="start_date",
+    parser.add_option("-s", "--start-date", dest="start_date",
                       help='get video after date, format is %Y-%m-%d')
+    parser.add_option("-e", "--end-date", dest="end_date",
+                      help='get video before date, format is %Y-%m-%d')
     parser.add_option("-c", "--committee", dest="comit_code",
                       help='parse committee, please input code.')
     parser.add_option("-n", "--no-download",
@@ -258,6 +261,14 @@ def main():
             raise ValueError("Incorrect data format, should be YYYY-MM-DD")
     else:
         start_date = None
+    if options.end_date:
+        try:
+            end_date = datetime.datetime.strptime(options.end_date, '%Y-%m-%d')
+            end_date = end_date.strftime('%Y-%m-%d')
+        except ValueError:
+            raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+    else:
+        end_date = None
 
     if options.comit_code:
         comit_code = options.comit_code
@@ -283,7 +294,7 @@ def main():
         reset_cookie()
         if not comit_code or comit_code == committee[comit_id]['code']:
             print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
-            date_list = get_date_list(comit_id, start_date)
+            date_list = get_date_list(comit_id, start_date, end_date)
             date_list.sort(reverse=True)
             print date_list
             for date in date_list:

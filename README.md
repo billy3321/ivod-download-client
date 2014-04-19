@@ -25,6 +25,8 @@ cp config.json.default config.json
 ./run_daily.py
 
 
+抓到的資料會放在 ivod.db，是sqlite3格式的Database
+
 抓下來的檔案會放在data資料夾中，目錄結構為：
 
 data/屆/會期/委員會代碼/日期

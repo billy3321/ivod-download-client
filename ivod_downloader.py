@@ -144,6 +144,9 @@ def get_movie_url(wzs_id, t, quality='w'):
         #print html_result
         xml = BeautifulSoup(html_result)
         div_movie = xml.find('div', {'class': 'movie'})
+        if not div_movie:
+            div_movie = xml.find('div', {'class': 'movie_large'})
+        #print div_movie
         if div_movie:
             #print div_movie
             script_text = div_movie.find('script').text

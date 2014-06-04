@@ -215,7 +215,7 @@ def download_resource(item, limit_speed = 0):
         print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_n)):
             sys.stderr.write('download_resource error, path: %s, video_url_n: %s\n' % (item['video_url_n'], item['filename']))
-            sys.stderr.write(u'下載%s的%s委員會，第%s段%s窄頻發言片段失敗' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
+            sys.stderr.write(u'下載%s的%s委員會，第%s段%s窄頻發言片段失敗\n' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code1 = 1
 
         #os.system(cmd)
@@ -234,7 +234,7 @@ def download_resource(item, limit_speed = 0):
         print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_w)):
             sys.stderr.write('download_resource error, path: %s, video_url_w: %s\n' % (item['video_url_w'], item['filename']))
-            sys.stderr.write(u'下載%s的%s委員會，第%s段%s寬頻發言片段失敗' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
+            sys.stderr.write(u'下載%s的%s委員會，第%s段%s寬頻發言片段失敗\n' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code2 = 1
         #os.system(cmd)
     if return_code1 == 0 and return_code2 == 0:

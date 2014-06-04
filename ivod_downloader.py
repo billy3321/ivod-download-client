@@ -5,7 +5,8 @@ import os, urllib, urllib2, json, cookielib, sys, random, time, datetime, subpro
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
 
-os.chdir(os.path.dirname(__file__))
+if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__))
 
 import db
 
@@ -59,11 +60,15 @@ def reset_cookie():
     global currect_time
     #if time lagger then 15 min, will reset.
     if time.time() - currect_time > 900:
-        currect_time = time.time()
         http_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 'Host': 'ivod.ly.gov.tw'}
         req = urllib2.Request('http://ivod.ly.gov.tw/', None, http_header)
-        web = urllib2.urlopen(req)
-        result = web.read()
+        try:
+            web = urllib2.urlopen(req)
+            result = web.read()
+            currect_time = time.time()
+        except:
+            sys.stderr.write('reset cookie error\n')
+            return False
         #print result
 
 def get_date_list(comt, start_date=None, end_date=None):
@@ -75,27 +80,29 @@ def get_date_list(comt, start_date=None, end_date=None):
         'X-Requested-With': 'XMLHttpRequest',
         'Pragma': 'no-cache'}
     req = urllib2.Request('http://ivod.ly.gov.tw/Committee/CommsDate', urllib.urlencode({'comtid': comt}), http_header)
-    #try:
-    if not start_date:
-        start_date = '2011-01-01'
-    if not end_date:
-        end_date = datetime.datetime.now().strftime('%Y-%m-%d')
-    web = urllib2.urlopen(req)
-    if web.getcode() == 200:
-        html = web.read()
-        #print type(html)
-        #print html
-        html = html.decode('utf-8-sig')
-        result = json.loads(html)
-        date_list = []
-        for i in result['mdate']:
-            if end_date >= i['METDAT'] >= start_date:
-                date_list.append(i['METDAT'])
-        return date_list
-    else:
+    try:
+        if not start_date:
+            start_date = '2011-01-01'
+        if not end_date:
+            end_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        web = urllib2.urlopen(req)
+        if web.getcode() == 200:
+            html = web.read()
+            #print type(html)
+            #print html
+            html = html.decode('utf-8-sig')
+            result = json.loads(html)
+            date_list = []
+            for i in result['mdate']:
+                if end_date >= i['METDAT'] >= start_date:
+                    date_list.append(i['METDAT'])
+            return date_list
+        else:
+            sys.stderr.write('get_date_list content error, comtid: %s\n' % comt)
+            return False
+    except:
+        sys.stderr.write('get_date_list web error, comtid: %s\n' % comt)
         return False
-    #except:
-    #    return False
 
 def get_movie_by_date(comit, date, page=1):
     http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
@@ -106,8 +113,11 @@ def get_movie_by_date(comit, date, page=1):
         'X-Requested-With': 'XMLHttpRequest',
         'Pragma': 'no-cache'}
     req = urllib2.Request('http://ivod.ly.gov.tw/Committee/MovieByDate', urllib.urlencode({'comtid': comit, 'date': date, 'page': page}), http_header)
-    #try:
-    web = urllib2.urlopen(req)
+    try:
+        web = urllib2.urlopen(req)
+    except:
+        sys.stderr.write('get_movie_by_date web error, comit: %s, date: %s\n' % (comit, date))
+        return False
     if web.getcode() == 200:
         html_result = web.read()
         html_result = html_result.decode('utf-8-sig')
@@ -116,6 +126,7 @@ def get_movie_by_date(comit, date, page=1):
         return result
         #Find WZS_ID
     else:
+        sys.stderr.write('get_movie_by_date content error, comit: %s, date: %s\n' % (comit, date))
         return False
 
 def get_movie_url(wzs_id, t, quality='w'):
@@ -137,7 +148,12 @@ def get_movie_url(wzs_id, t, quality='w'):
         return False
     #print url
     req = urllib2.Request(url, None, http_header)
-    web = urllib2.urlopen(req)
+    try:
+        web = urllib2.urlopen(req)
+    except:
+        random_sleep()
+        sys.stderr.write('get_movie_url web error, wzs_id: %s, t: %s\n' % (wzs_id, t))
+        return False
     #print web.getcode()
     if web.getcode() == 200:
         html_result = web.read()
@@ -155,6 +171,9 @@ def get_movie_url(wzs_id, t, quality='w'):
             #print script_text
             return script_text
         #return xml
+    else:
+        sys.stderr.write('get_movie_url content error, wzs_id: %s, t: %s\n' % (wzs_id, t))
+        return False
 
 def get_picture_url(pic_name):
     return 'http://ivod.ly.gov.tw/Image/Pic/' + pic_name
@@ -195,6 +214,8 @@ def download_resource(item, limit_speed = 0):
         return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
         print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_n)):
+            sys.stderr.write('download_resource error, path: %s, video_url_n: %s\n' % (item['video_url_n'], item['filename']))
+            sys.stderr.write(u'下載%s的%s委員會，第%s段%s窄頻發言片段失敗' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code1 = 1
 
         #os.system(cmd)
@@ -212,6 +233,8 @@ def download_resource(item, limit_speed = 0):
         return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
         if not os.path.exists(os.path.join(path, filename_w)):
+            sys.stderr.write('download_resource error, path: %s, video_url_w: %s\n' % (item['video_url_w'], item['filename']))
+            sys.stderr.write(u'下載%s的%s委員會，第%s段%s寬頻發言片段失敗' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code2 = 1
         #os.system(cmd)
     if return_code1 == 0 and return_code2 == 0:
@@ -298,6 +321,8 @@ def main():
         if not comit_code or comit_code == committee[comit_id]['code']:
             print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
             date_list = get_date_list(comit_id, start_date, end_date)
+            if not date_list:
+                date_list = []
             date_list.sort(reverse=True)
             print date_list
             for date in date_list:

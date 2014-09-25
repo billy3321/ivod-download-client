@@ -102,6 +102,7 @@ def get_date_list(comt, start_date=None, end_date=None):
             return False
     except:
         sys.stderr.write('get_date_list web error, comtid: %s\n' % comt)
+        reset_cookie()
         return False
 
 def get_movie_by_date(comit, date, page=1):
@@ -117,6 +118,7 @@ def get_movie_by_date(comit, date, page=1):
         web = urllib2.urlopen(req)
     except:
         sys.stderr.write('get_movie_by_date web error, comit: %s, date: %s\n' % (comit, date))
+        reset_cookie()
         return False
     if web.getcode() == 200:
         html_result = web.read()
@@ -153,6 +155,7 @@ def get_movie_url(wzs_id, t, quality='w'):
     except:
         random_sleep()
         sys.stderr.write('get_movie_url web error, wzs_id: %s, t: %s\n' % (wzs_id, t))
+        reset_cookie()
         return False
     #print web.getcode()
     if web.getcode() == 200:

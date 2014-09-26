@@ -4,13 +4,24 @@ ivod-download-client
 Usage：
 ======
 
+單獨IVOD下載程式：
+===
+
+./ivod_single_downloader.py -u 'http://ivod.ly.gov.tw/Play/VOD/76394/300K'
+
+-u IVOD URL
+
+
+時間段完整下載程式：
+===
+
 首先先複製設定檔
 
 cp config.json.default config.json
 
 接著執行主程式
 
-./ivod-downloader.py -s '2014-01-01'
+./ivod_downloader.py -s '2014-01-01'
 
 -s 從該日期開始下載
 

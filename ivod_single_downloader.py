@@ -46,18 +46,22 @@ def test_php():
     result = os.system(cmd)
     return result == 0
 
-def get_movie_url(url):
+def download_from_url(url):
     http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
         'Host': 'ivod.ly.gov.tw',
         'Connection': 'keep-alive'}
+
+    if 'http://ivod.ly.gov.tw/Play/' not in url:
+        sys.stderr.write('URL error')
+        sys.exit(1)
 
     url = url.replace('300K', '1M')
     req = urllib2.Request(url, None, http_header)
     try:
         web = urllib2.urlopen(req)
     except:
-        sys.stderr.write('get_movie_url web error')
+        sys.stderr.write('download_from_url web error')
         reset_cookie()
         return False
     #print web.getcode()
@@ -107,7 +111,7 @@ def main():
     if not options.url:
         print 'Please input url.'
         sys.exit(1)
-    get_movie_url(options.url)
+    download_from_url(options.url)
 
 
 if __name__ == '__main__':

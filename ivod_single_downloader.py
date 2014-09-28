@@ -3,6 +3,7 @@
 import os, urllib, urllib2, cookielib, sys, random, time, datetime, subprocess
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
+from downloader import download_adobe_hds
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))
@@ -88,10 +89,9 @@ def download_from_url(url):
             script_text = div_movie.find('script').text
             script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
             script_text = script_text.replace("');", '')
-            #print script_text
-            return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', script_text, '--outfile', filename])
-            #return script_text
-            return return_code1
+            print script_text
+
+            return download_adobe_hds(script_text, filename)
         #return xml
     else:
         sys.stderr.write('get_movie_url content error')

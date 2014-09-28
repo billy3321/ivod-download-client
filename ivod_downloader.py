@@ -4,6 +4,7 @@
 import os, urllib, urllib2, json, cookielib, sys, random, time, datetime, subprocess
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from optparse import OptionParser
+from downloader import download_adobe_hds
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))
@@ -200,46 +201,39 @@ def download_resource(item, limit_speed = 0):
         full_path = '%s/%s%s' % (path, filename, extension)
         if os.path.exists(full_path):
             os.remove(full_path)
-        cmd = "wget -O '%s' '%s'" % (full_path, item['thumb'])
-        #print cmd
-        #os.system(cmd)
         urllib.urlretrieve(item['thumb'], full_path)
 
     if item.has_key('video_url_n') and item['video_url_n'] and check_url(item['video_url_n']):
         filename_n = '%s_n' % filename
-        cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_n'], path, filename_n)
+        
         if item['firm'] == 'whole':
             print u'開始嘗試下載%s的%s委員會窄頻完整影片' % (item['date'], committee[item['comit_code']]['name'])
         elif item['firm'] == 'clip':
             print u'開始嘗試下載%s的%s委員會，第%s段%s窄頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
         print u'影片網址為：%s' % item['video_url_n']
-        #print cmd
-        return_code1 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
-        print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_n'], '--outdir', path, '--outfile', filename_n, '--maxspeed', str(limit_speed)])
+       
+        return_code1 = download_adobe_hds(item['video_url_n'], filename_n, outdir=path, maxspeed=str(limit_speed))
+
         if not os.path.exists(os.path.join(path, filename_n)):
             sys.stderr.write('download_resource error, path: %s, video_url_n: %s\n' % (item['video_url_n'], item['filename']))
             sys.stderr.write(u'下載%s的%s委員會，第%s段%s窄頻發言片段失敗\n' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code1 = 1
 
-        #os.system(cmd)
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
         filename_w = '%s_w' % filename
-        cmd = "php AdobeHDS.php  --quality high --delete --manifest '%s' --outdir %s --outfile %s" % (item['video_url_w'], path, filename_w)
-        #print cmd
         
         if item['firm'] == 'whole':
             print u'開始嘗試下載%s的%s委員會寬頻完整影片' % (item['date'], committee[item['comit_code']]['name'])
         elif item['firm'] == 'clip':
             print u'開始嘗試下載%s的%s委員會，第%s段%s寬頻發言片段' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker'])
         print u'影片網址為：%s' % item['video_url_n']
-        return_code2 = subprocess.call(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
-        print ' '.join(['php', 'AdobeHDS.php', '--quality', 'high', '--delete', '--manifest', item['video_url_w'], '--outdir', path, '--outfile', filename_w, '--maxspeed', str(limit_speed)])
+        return_code2 = download_adobe_hds(item['video_url_w'], filename_w, outdir=path, maxspeed=str(limit_speed))
         if not os.path.exists(os.path.join(path, filename_w)):
             sys.stderr.write('download_resource error, path: %s, video_url_w: %s\n' % (item['video_url_w'], item['filename']))
             sys.stderr.write(u'下載%s的%s委員會，第%s段%s寬頻發言片段失敗\n' % (item['date'], committee[item['comit_code']]['name'], item['num'], item['speaker']))
             return_code2 = 1
-        #os.system(cmd)
+
     if return_code1 == 0 and return_code2 == 0:
         return 1
     else:
@@ -256,10 +250,6 @@ def write_config(info, path):
     with open(full_path, 'w') as f:
         f.write(json_dumps(info) + '\n')
 
-def test_php():
-    cmd = 'php test_ext.php'
-    result = os.system(cmd)
-    return result == 0
 
 def check_file_downloaded(path, filename):
     if os.path.exists(os.path.join(path, filename)):
@@ -309,9 +299,6 @@ def main():
     else:
         limit_speed = options.limit_speed
 
-    if not test_php():
-        print "Please check PHP extensions."
-        sys.exit(1)
     config = config_parser('config.json')
 
     if not config:

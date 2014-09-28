@@ -2,7 +2,8 @@ import subprocess
 
 
 def download_adobe_hds(manifest_url, filename, **kwargs):
-    ret = subprocess.call(['php',
+
+    cmd = ['php',
                            'AdobeHDS.php',
                            '--quality',
                            'high',
@@ -10,5 +11,16 @@ def download_adobe_hds(manifest_url, filename, **kwargs):
                            '--manifest',
                            manifest_url,
                            '--outfile',
-                           filename])
+                           filename]
+
+    if "outdir" in kwargs:
+        cmd.append("--outdir")
+        cmd.append(kwargs["outdir"])
+
+    if "maxspeed" in kwargs:
+        cmd.append("--maxspeed")
+        cmd.append(kwargs["maxspeed"])
+
+    ret = subprocess.call(cmd)
     return ret
+

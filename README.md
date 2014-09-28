@@ -56,7 +56,7 @@ data/屆/會期/委員會代碼/日期
 相依性：
 ======
 
-Python：Beautifulsoap
+Python：Beautifulsoap, youtube_dl
 
 PHP：curl
 

@@ -79,7 +79,7 @@ def download_from_url(url):
         elif 'FULL' in url:
             meet = text_block.find('h4').text.replace(u'會議別 ：', u'').replace(u'委員會', u'')
             date = text_block.findAll('p')[1].text.replace(u'會  議  時  間：', u'').split(' ')[0]
-            filename = '%s %s' % (date, meet)
+            filename = '%s %s.flv' % (date, meet)
         div_movie = xml.find('div', {'class': 'movie'})
         if not div_movie:
             div_movie = xml.find('div', {'class': 'movie_large'})
@@ -104,9 +104,6 @@ def main():
                       help='IVOD Url')
     (options, args) = parser.parse_args()
 
-    if not test_php():
-        print "Please check PHP extensions."
-        sys.exit(1)
     reset_cookie()
     if not options.url:
         print 'Please input url.'

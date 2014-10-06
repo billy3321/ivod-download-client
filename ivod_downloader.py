@@ -204,7 +204,7 @@ def download_resource(item, limit_speed = 0):
         urllib.urlretrieve(item['thumb'], full_path)
 
     if item.has_key('video_url_n') and item['video_url_n'] and check_url(item['video_url_n']):
-        filename_n = '%s_n' % filename
+        filename_n = '%s_n.flv' % filename
         
         if item['firm'] == 'whole':
             print u'開始嘗試下載%s的%s委員會窄頻完整影片' % (item['date'], committee[item['comit_code']]['name'])
@@ -221,7 +221,7 @@ def download_resource(item, limit_speed = 0):
 
 
     if item.has_key('video_url_w') and item['video_url_w'] and check_url(item['video_url_w']):
-        filename_w = '%s_w' % filename
+        filename_w = '%s_w.flv' % filename
         
         if item['firm'] == 'whole':
             print u'開始嘗試下載%s的%s委員會寬頻完整影片' % (item['date'], committee[item['comit_code']]['name'])

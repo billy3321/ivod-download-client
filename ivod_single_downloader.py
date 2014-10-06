@@ -75,11 +75,11 @@ def download_from_url(url):
             meet = text_block.find('h4').text.replace(u'會議別 ：', u'').replace(u'委員會', u'')
             name = text_block.findAll('p')[1].text.replace(u'委  員  名  稱：', u'')
             date = text_block.findAll('p')[4].text.replace(u'會  議  時  間：', u'').split(' ')[0]
-            filename = '%s %s %s' % (date, meet, name)
+            filename = '%s_%s_%s.flv' % (date, meet, name)
         elif 'FULL' in url:
             meet = text_block.find('h4').text.replace(u'會議別 ：', u'').replace(u'委員會', u'')
             date = text_block.findAll('p')[1].text.replace(u'會  議  時  間：', u'').split(' ')[0]
-            filename = '%s %s.flv' % (date, meet)
+            filename = '%s_%s.flv' % (date, meet)
         div_movie = xml.find('div', {'class': 'movie'})
         if not div_movie:
             div_movie = xml.find('div', {'class': 'movie_large'})

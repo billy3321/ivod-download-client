@@ -6,23 +6,22 @@ from ivod.request import PresetURL
 from ivod.ivod_parser import extract_manifest_from_player_page
 from ivod.downloader import download_adobe_hds
 
-import os, urllib, urllib2, json, cookielib, sys, random, time, datetime, subprocess
+import os
+import urllib
+import urllib2
+import json
+import cookielib
+import sys
+import random
+import time
+import datetime
+import subprocess
 
 from optparse import OptionParser
 
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
-
-def config_parser(path):
-    """parser the config"""
-    try:
-        with open(path) as json_data:
-            data = json.load(json_data)
-        return data
-    except:
-        return False
 
 
 def main():
@@ -39,10 +38,12 @@ def main():
     parser.add_option("-l", "--limit-speed", dest="limit_speed",
                       help='download speed, unit is kb/s', default=0)
     (options, args) = parser.parse_args()
-    #print options
+    # print options
     if options.start_date:
         try:
-            start_date = datetime.datetime.strptime(options.start_date, '%Y-%m-%d')
+            start_date = datetime.datetime.strptime(
+                options.start_date,
+                '%Y-%m-%d')
             start_date = start_date.strftime('%Y-%m-%d')
         except ValueError:
             raise ValueError("Incorrect data format, should be YYYY-MM-DD")
@@ -62,21 +63,15 @@ def main():
     else:
         comit_code = None
 
-    config = config_parser('config.json')
-
-    if not config:
-        config = {
-            "db": {
-                "path": "ivod.db"
-            },
-            "download": {
-                "path": "data"
-            }
-        }
-
-    from ivod.commands import download_meetings
-    download_meetings(options, config, comit_code, start_date, end_date)
-
+    from ivod.commands import load_configurations, download_meetings
+    config = load_configurations('config.json')
+    download_meetings(
+        config,
+        comit_code,
+        start_date,
+        end_date,
+        options.limit_speed,
+        options.nd)
 
 
 if __name__ == '__main__':

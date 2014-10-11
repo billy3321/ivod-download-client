@@ -227,9 +227,27 @@ def random_sleep():
     time.sleep(random.randint(1, 5))
 
 
-def download_meetings(options, config, comit_code, start_date, end_date):
+def load_configurations(path):
+    """parser the config"""
+    try:
+        with open(path) as json_data:
+            data = json.load(json_data)
+        return data
+    except:
+        config = {
+            "db": {
+                "path": "ivod.db"
+            },
+            "download": {
+                "path": "data"
+            }
+        }
+        return config
 
-    limit_speed = options.limit_speed
+
+def download_meetings(
+        config, comit_code, start_date, end_date, limit_speed=0, metadata_only=False):
+
     database = db.Database(config['db'])
 
     for comit_id in committee.keys():
@@ -292,7 +310,7 @@ def download_meetings(options, config, comit_code, start_date, end_date):
                     full_list.append(item)
                     random_sleep()
                     # print item
-                    if not options.nd and not item['finished']:
+                    if not metadata_only and not item['finished']:
                         item['finished'] = download_job(item, limit_speed)
                         random_sleep()
                         # retry once
@@ -352,7 +370,7 @@ def download_meetings(options, config, comit_code, start_date, end_date):
                         single_list.append(item)
                         random_sleep()
                         # print item
-                        if not options.nd and not item['finished']:
+                        if not metadata_only and not item['finished']:
                             item['finished'] = download_job(item, limit_speed)
                             random_sleep()
                             # retry once

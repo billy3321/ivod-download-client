@@ -17,11 +17,7 @@ start_date = (
     datetime.timedelta(
         days=5)).strftime('%Y-%m-%d')
 
-clean_cmd = os.path.join(os.path.abspath('.'), 'cleanup.sh')
-run_cmd = os.path.join(os.path.abspath('.'), 'ivod_downloader.py')
 
-subprocess.call([clean_cmd])
-time.sleep(5)
-subprocess.call([run_cmd, '-s', start_date, '-e', end_date])
-time.sleep(5)
-subprocess.call([clean_cmd])
+from ivod.commands import load_configurations, download_meetings
+config = load_configurations('config.json')
+download_meetings(config, None, start_date, end_date)

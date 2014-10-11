@@ -6,6 +6,6 @@ setup(name='twly-ivod-dl',
       scripts=[
           'scripts/twly-ivod-dl',
           'scripts/twly-ivod-meeting-dl',
-          'scripts/twly-ivod-dl-web.py'],
+          'scripts/twly-ivod-dl-web'],
       packages=['ivod'],
       test_suite='tests.function_test')

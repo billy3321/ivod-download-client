@@ -6,6 +6,8 @@ from downloader import download_adobe_hds
 from downloader import download_adobe_hds
 from ivod_parser import extract_manifest_from_player_page
 
+import db
+
 
 import os, urllib, urllib2, json, cookielib, sys, random, time, datetime, subprocess
 
@@ -97,6 +99,27 @@ def check_url(url):
     except:
         return False
 
+def check_file_downloaded(path, filename):
+    return os.path.exists(os.path.join(path, filename))
+
+def json_dumps(o):
+    return json.dumps(o, sort_keys=True, ensure_ascii=False).encode('utf8')
+
+def write_config(info, path):
+    #print info
+    if not os.path.exists(path):
+        os.makedirs(path)
+    full_path = os.path.join(path, 'info.json')
+    if os.path.exists(full_path):
+        os.remove(full_path)
+    with open(full_path, 'w') as f:
+        f.write(json_dumps(info) + '\n')
+
+
+def get_picture_url(pic_name):
+    return 'http://ivod.ly.gov.tw/Image/Pic/' + pic_name
+
+
 def download_job( item, limit_speed = 0): 
     path = item['path']
     filename = item['filename']
@@ -150,3 +173,107 @@ def download_job( item, limit_speed = 0):
         return 1
     else:
         return 0
+
+def random_sleep():
+    time.sleep(random.randint(1,5))
+
+def download_meetings(options, config, comit_code, start_date, end_date):
+
+    limit_speed = options.limit_speed
+    database = db.Database(config['db'])
+
+    for comit_id in committee.keys():
+        if not comit_code or comit_code == committee[comit_id]['code']:
+            print u'開始掃描%s委員會可以抓取的影片...' % committee[comit_id]['name']
+            date_list = list_meeting_date_of_committee(comit_id, start_date, end_date)
+            if not date_list:
+                date_list = []
+            date_list.sort(reverse=True)
+            print date_list
+            for date in date_list:
+                random_sleep()
+                movie_list = list_meeting_video_of_committee(comit_id, date, 1)
+                page_num = (int(movie_list['total']) / 5) + 1
+                full_list = []
+                single_list = []
+                for i in movie_list['full']:
+                    #print i
+                    item = {}
+                    item['firm'] = 'whole'
+                    item['wmvid'] = i['MEREID']
+                    item['ad'] = i['STAGE_']
+                    item['session'] = i['DUTION']
+                    item['sitting'] = None
+                    item['time'] = i['ST_TIM'].split(' ')[1]
+                    item['video_url_n'] = generate_video_url(i['MEREID'], 'whole', 'n')
+                    item['video_url_w'] = generate_video_url(i['MEREID'], 'whole', 'w')
+                    item['date'] = i['ST_TIM'].split(' ')[0]
+                    item['summary'] = i['METDEC'].replace('\n', '')
+                    item['comit_code'] = comit_id
+                    item['filename'] = '%s-%s' % (item['date'], committee[item['comit_code']]['code'])
+                    item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                    item['num'] = None
+                    item['ext'] = 'flv'
+                    item['length'] = None
+                    item['speaker'] = None
+                    item['thumb'] = None
+                    if check_file_downloaded(item['path'], (item['filename'] + '_n.flv')) and check_file_downloaded(item['path'], (item['filename'] + '_w.flv')):
+                        item['finished'] = 1
+                    else:
+                        item['finished'] = 0
+                    #item['finished'] = database.query_if_finished(item)
+                    full_list.append(item)
+                    random_sleep()
+                    #print item
+                    if not options.nd and not item['finished']:
+                        item['finished'] = download_job(item, limit_speed)
+                        random_sleep()
+                        #retry once
+                        if not item['finished']:
+                            item['finished'] = download_job(item, limit_speed)
+                            random_sleep()
+                    database.insert_data(item)
+                for num in xrange(1, (page_num + 1)):
+                    if num != 1:
+                        movie_list = list_meeting_video_of_committee(comit_id, date, num)
+                    for i in movie_list['result']:
+                        item = {}
+                        #print i
+                        item['wmvid'] = i['WZS_ID']
+                        item['firm'] = 'clip'
+                        item['ad'] = i['STAGE_']
+                        item['session'] = i['DUTION']
+                        item['sitting'] = None
+                        item['length'] = i['MOVTIM']
+                        item['video_url_n'] = generate_video_url(i['WZS_ID'], 'clip', 'n')
+                        item['video_url_w'] = generate_video_url(i['WZS_ID'], 'clip', 'w')
+                        item['speaker'] = i['CH_NAM']
+                        item['thumb'] = get_picture_url(i['PHOTO_'])
+                        item['time'] = i['ST_TIM'].split(' ')[1]
+                        item['date'] = i['ST_TIM'].split(' ')[0]
+                        item['summary'] = i['METDEC'].replace('\n', '')
+                        item['num'] = i['R']
+                        item['comit_code'] = comit_id
+                        item['ext'] = 'flv'
+                        item['filename'] = '%s-%s-%s-%s' % (item['date'], committee[item['comit_code']]['code'], item['num'], item['speaker'])
+                        item['path'] = os.path.join(config['download']['path'], item['ad'], item['session'], committee[item['comit_code']]['code'], item['date'])
+                        #item['finished'] = database.query_if_finished(item)
+                        if check_file_downloaded(item['path'], (item['filename'] + '_n.flv')) and check_file_downloaded(item['path'], (item['filename'] + '_w.flv')):
+                            item['finished'] = 1
+                        else:
+                            item['finished'] = 0
+                        single_list.append(item)
+                        random_sleep()
+                        #print item
+                        if not options.nd and not item['finished']:
+                            item['finished'] = download_job(item, limit_speed)
+                            random_sleep()
+                            #retry once
+                            if not item['finished']:
+                                item['finished'] = download_job(item, limit_speed)
+                                random_sleep()
+                        database.insert_data(item)
+                #print full_list
+                #print single_list
+                full_info = {'whole': full_list, 'clips': single_list}
+                write_config(full_info, config['download']['path'])

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys, datetime, subprocess, time
+import os
+import sys
+import datetime
+import subprocess
+import time
 
 os.chdir(os.path.dirname(__file__))
 
@@ -8,7 +12,10 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 end_date = datetime.datetime.now().strftime('%Y-%m-%d')
-start_date = (datetime.datetime.now() - datetime.timedelta(days=5)).strftime('%Y-%m-%d')
+start_date = (
+    datetime.datetime.now() -
+    datetime.timedelta(
+        days=5)).strftime('%Y-%m-%d')
 
 clean_cmd = os.path.join(os.path.abspath('.'), 'cleanup.sh')
 run_cmd = os.path.join(os.path.abspath('.'), 'ivod_downloader.py')

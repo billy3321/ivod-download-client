@@ -242,8 +242,14 @@ def main():
     config = config_parser('config.json')
 
     if not config:
-        print 'config error.'
-        sys.exit(1)
+        config = {
+            "db": {
+                "path": "ivod.db"
+            },
+            "download": {
+                "path": "data"
+            }
+        }
     database = db.Database(config['db'])
 
     for comit_id in committee.keys():

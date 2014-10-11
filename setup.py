@@ -4,8 +4,8 @@ setup(name='ivod_downloader',
       version='0.1',
       install_requires=["youtube-dl>=2014.09.25", "BeautifulSoup>=3.2.1"],
       scripts=[
-          'scripts/ivod_downloader.py',
-          'scripts/ivod_single_downloader.py',
-          'scripts/ivod_schedule_download_web.py'],
+          'scripts/twly-ivod-dl',
+          'scripts/twly-ivod-meeting-dl',
+          'scripts/twly-ivod-dl-web.py'],
       packages=['ivod'],
       test_suite='tests.function_test')

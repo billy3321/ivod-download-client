@@ -2,24 +2,24 @@
 
 安裝方式請參閱 [INSTALL.md](INSTALL.md)
 
-## ivod\_single\_downloader.py
+## twly-ivod-dl
 
 功能：下載單一段 VOD 檔案
 
 用法：
 
 ```
-ivod_single_downloader.py -u [影片播放網址]
+twly-ivod-dl -u [影片播放網址]
 ```
 
 範例：
 
 ```
-ivod_single_downloader.py -u 'http://ivod.ly.gov.tw/Play/VOD/76394/300K'
+twly-ivod-dl -u 'http://ivod.ly.gov.tw/Play/VOD/76394/300K'
 ```
 
 
-## ivod\_downloader.py
+## twly-ivod-meeting-dl
 
 設定檔：
 
@@ -34,15 +34,15 @@ ivod_single_downloader.py -u 'http://ivod.ly.gov.tw/Play/VOD/76394/300K'
 }
 ```
 
-`ivod_downloader.py` 需要有設定檔在工作路徑（就是你執行下載指令的所在路徑）才能運算作，下面是檔案的範例。
+`twly-ivod-meeting-dl` 需要有設定檔在工作路徑（就是你執行下載指令的所在路徑）才能運算作，下面是檔案的範例。
 檔名必需為 `config.json`
 
 
 用法：
 
 ```
-ivod_downloader.py -h
-Usage: ivod_downloader.py [options]
+twly-ivod-meeting-dl -h
+Usage: twly-ivod-meeting-dl [options]
 
 Options:
   -h, --help            show this help message and exit
@@ -60,31 +60,31 @@ Options:
 範例（指定時間）：
 
 ```
-ivod_downloader.py -s '2014-01-01'
+twly-ivod-meeting-dl -s '2014-01-01'
 ```
 
 ```
-ivod_downloader.py -s '2014-01-01' -e '2014-10-01'
+twly-ivod-meeting-dl -s '2014-01-01' -e '2014-10-01'
 ```
 
 範例（指定委員會）：
 
 ```
-ivod_downloader.py -c 8
+twly-ivod-meeting-dl -c 8
 ```
 
 ```
-ivod_downloader.py -c 8 -s '2014-09-01'
+twly-ivod-meeting-dl -c 8 -s '2014-09-01'
 ```
 
 範例（僅抓資料）：
 
 ```
-ivod_downloader.py -n
+twly-ivod-meeting-dl -n
 ```
 
 ```
-ivod_downloader.py -n -c 8 -s '2014-09-01'
+twly-ivod-meeting-dl -n -c 8 -s '2014-09-01'
 ```
 
 

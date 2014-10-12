@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import struct
+import sys
+import json
+from ivod.commands import download_single_high_quality_video
+
+
+def read_chrome_message():
+    """
+    unpack chrome extension native message
+    first 4 bytes is the size of payload
+    the following payload is json format
+    """
+    size_info = sys.stdin.read(4)
+    message_size = struct.unpack('i', size_info)[0]
+    message = sys.stdin.read(message_size)
+    return json.loads(message)
+
+def build_player_url(message):
+    if 'uri' in message:
+        return "http://ivod.ly.gov.tw" + message['uri'] 
+
+def disable_output_from_twly_dls():
+    """
+    disable output is very important !!!
+    any output will cause chrome terminate the native application
+    """
+    f = open(os.devnull, 'w')
+    sys.stdout = f
+    sys.stderr = f
+
+def get_download_folder():
+    from os.path import expanduser
+    home = expanduser("~")
+    download_folder = os.path.join(home, 'twly-ivod-downloads')
+    if not os.path.exists(download_folder):
+        os.mkdir(download_folder)
+    return download_folder
+
+
+def main():
+    disable_output_from_twly_dls()
+
+    try:
+        os.chdir(get_download_folder())
+        player_url = build_player_url(read_chrome_message())
+        download_single_high_quality_video(player_url)
+    except Exception as e:
+        pass
+
+if __name__ == "__main__":
+    main()

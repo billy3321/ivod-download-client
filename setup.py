@@ -7,6 +7,6 @@ setup(name='twly-ivod-dl',
           'scripts/twly-ivod-dl',
           'scripts/twly-ivod-daily-task',
           'scripts/twly-ivod-meeting-dl',
-          'scripts/twly-ivod-dl-web'],
+          'scripts/twly-ivod-dl-chrome-extension-receiver'],
       packages=['ivod'],
       test_suite='tests.function_test')

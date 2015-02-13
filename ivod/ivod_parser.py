@@ -26,9 +26,9 @@ def _extract_text_info_from_player_page(url, content):
             u'').replace(
             u'委員會',
             u'')
-        name = content.findAll('p')[1].text.replace(u'委  員  名  稱：', u'')
-        date = content.findAll('p')[4].text.replace(
-            u'會  議  時  間：',
+        name = content.findAll('p')[2].text.replace(u'委員名稱：', u'')
+        date = content.findAll('p')[5].text.replace(
+            u'會議時間：',
             u'').split(' ')[0]
         filename = '%s_%s_%s.flv' % (date, meet, name)
     elif 'FULL' in url:
@@ -37,8 +37,8 @@ def _extract_text_info_from_player_page(url, content):
             u'').replace(
             u'委員會',
             u'')
-        date = content.findAll('p')[1].text.replace(
-            u'會  議  時  間：',
+        date = content.findAll('p')[2].text.replace(
+            u'會議時間：',
             u'').split(' ')[0]
         filename = '%s_%s.flv' % (date, meet)
 
@@ -64,17 +64,17 @@ def extract_manifest_from_player_page(url, ensure_high_quality_video=False):
 
         content = resp.read()
         xml = BeautifulSoup(content)
-        div_movie = xml.find('div', {'class': 'movie'})
+        div_movie = xml.find('div', {'class': 'video'})
 
         movie_info = xml.find(
             'div', {
-                'class': 'movie_box clearfix'}).find(
+                'class': 'legislator-video'}).find(
             'div', {
-                'class': 'text'})
+                'class': 'video-text'})
         info = _extract_text_info_from_player_page(url, movie_info)
 
         if not div_movie:
-            div_movie = xml.find('div', {'class': 'movie_large'})
+            div_movie = xml.find('div', {'class': 'video-box'})
 
         if div_movie:
             script_text = div_movie.find('script').text

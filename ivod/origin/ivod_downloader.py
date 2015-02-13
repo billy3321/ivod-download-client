@@ -163,15 +163,15 @@ def get_movie_url(wzs_id, t, quality='w'):
         html_result = web.read()
         #print html_result
         xml = BeautifulSoup(html_result)
-        div_movie = xml.find('div', {'class': 'movie'})
+        div_movie = xml.find('div', {'class': 'video'})
         if not div_movie:
-            div_movie = xml.find('div', {'class': 'movie_large'})
+            div_movie = xml.find('div', {'class': 'video-box'})
         #print div_movie
         if div_movie:
             #print div_movie
-            script_text = div_movie.find('script').text
+            script_text = div_movie.find('script').text.strip()
             script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
-            script_text = script_text.replace("');", '')
+            script_text = script_text.split("');")[0]
             #print script_text
             return script_text
         #return xml

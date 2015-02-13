@@ -65,30 +65,32 @@ def download_from_url(url):
         sys.stderr.write('download_from_url web error')
         reset_cookie()
         return False
-    #print web.getcode()
+    # print web.getcode()
     if web.getcode() == 200:
         html_result = web.read()
-        #print html_result
+        # print html_result
         xml = BeautifulSoup(html_result)
-        text_block = xml.find('div', {'class': 'movie_box clearfix'}).find('div', {'class':'text'})
-        if 'VOD' in url:
-            meet = text_block.find('h4').text.replace(u'會議別 ：', u'').replace(u'委員會', u'')
-            name = text_block.findAll('p')[1].text.replace(u'委  員  名  稱：', u'')
-            date = text_block.findAll('p')[4].text.replace(u'會  議  時  間：', u'').split(' ')[0]
+        text_block = xml.find('div', {'class': 'legislator-video'}).find('div', {'class':'video-text'})
+        if 'PLAY/VOD' in url.upper():
+            meet = text_block.find('h4').text.replace(u'主辦單位 ：', u'').replace(u'委員會', u'')
+            name = text_block.findAll('p')[2].text.replace(u'委員名稱：', u'')
+            date = text_block.findAll('p')[5].text.replace(u'會  議  時  間：', u'').split(' ')[0]
             filename = '%s_%s_%s.flv' % (date, meet, name)
-        elif 'FULL' in url:
-            meet = text_block.find('h4').text.replace(u'會議別 ：', u'').replace(u'委員會', u'')
-            date = text_block.findAll('p')[1].text.replace(u'會  議  時  間：', u'').split(' ')[0]
+        elif 'PLAY/FULL' in url.upper():
+            meet = text_block.find('h4').text.replace(u'主辦單位 ：', u'').replace(u'委員會', u'')
+            date = text_block.findAll('p')[2].text.replace(u'會議時間：', u'').split(' ')[0]
             filename = '%s_%s.flv' % (date, meet)
-        div_movie = xml.find('div', {'class': 'movie'})
+        else:
+            filename = 'temp.flv'
+        div_movie = xml.find('div', {'class': 'video'})
         if not div_movie:
-            div_movie = xml.find('div', {'class': 'movie_large'})
+            div_movie = xml.find('div', {'class': 'video-box'})
         #print div_movie
         if div_movie:
             #print div_movie
-            script_text = div_movie.find('script').text
+            script_text = div_movie.find('script').text.strip()
             script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
-            script_text = script_text.replace("');", '')
+            script_text = script_text.split("');")[0]
             print script_text
 
             return download_adobe_hds(script_text, filename)

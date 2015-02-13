@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 from ivod.origin import ivod_downloader as origin_ivod_downloader
 from ivod.origin import ivod_single_downloader as origin_ivod_single_downloader

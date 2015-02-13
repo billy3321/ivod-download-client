@@ -34,7 +34,7 @@ twly-ivod-dl -u 'http://ivod.ly.gov.tw/Play/VOD/76394/300K'
 }
 ```
 
-`twly-ivod-meeting-dl` 需要有設定檔在工作路徑（就是你執行下載指令的所在路徑）才能運算作，下面是檔案的範例。
+`twly-ivod-meeting-dl` 需要有設定檔在工作路徑（就是你執行下載指令的所在路徑）才能運算作，上面是檔案的範例。
 檔名必需為 `config.json`
 
 
@@ -88,9 +88,22 @@ twly-ivod-meeting-dl -n -c 8 -s '2014-09-01'
 ```
 
 
-## run\_daily.py
+## twly-ivod-daily-task
 
-(維修中)
+功能：下載 5 日內的所有檔案
+
+用法：
+
+```
+twly-ivod-daily-task
+```
+
+twly-ivod-daily-task 等同於下列指令：
+
+```
+twly-ivod-meeting-dl -s [今天日期往前算 5 天] -e [今天日期]
+```
+
 
 
 # 檔案與描述資料說明

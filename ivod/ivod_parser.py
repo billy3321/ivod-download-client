@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib2
-from request import build_request
+from .request import build_request
 from BeautifulSoup import BeautifulSoup
 
 
@@ -43,6 +43,7 @@ def _extract_text_info_from_player_page(url, content):
         filename = '%s_%s.flv' % (date, meet)
 
     return {'filename': filename, 'date': date, 'name': name, 'meet': meet}
+
 
 def _supported_url(url):
     return 'http://ivod.ly.gov.tw/Play/' in url

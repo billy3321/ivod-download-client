@@ -70,7 +70,7 @@ def download_from_url(url):
         html_result = web.read()
         # print html_result
         xml = BeautifulSoup(html_result)
-        text_block = xml.find('div', {'class': 'legislator-video'}).find('div', {'class':'video-text'})
+        text_block = xml.find('div', {'class':'video-text'})
         if 'PLAY/VOD' in url.upper():
             meet = text_block.find('h4').text.replace(u'主辦單位 ：', u'').replace(u'委員會', u'')
             name = text_block.findAll('p')[2].text.replace(u'委員名稱：', u'')

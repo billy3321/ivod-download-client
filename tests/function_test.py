@@ -47,9 +47,9 @@ class TestVODSingleResults(unittest.TestCase):
         commands.download_adobe_hds = self._mock_adobe_hds_downloader
 
         origin_ivod_single_downloader.download_from_url(
-            'http://ivod.ly.gov.tw/Play/VOD/76394/300K')
+            'https://ivod.ly.gov.tw/Play/VOD/76394/300K')
         commands.download_single_high_quality_video(
-            'http://ivod.ly.gov.tw/Play/VOD/76394/300K')
+            'https://ivod.ly.gov.tw/Play/VOD/76394/300K')
 
         self.assertTrue(self.download_url_args[0])
         self.assertEqual(self.download_url_args[0], self.download_url_args[1])

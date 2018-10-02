@@ -5,12 +5,12 @@ import urllib2
 
 class PresetURL(object):
 
-    COMMS_DATE = 'http://ivod.ly.gov.tw/Committee/CommsDate'
-    MOVIE_BY_DATE = 'http://ivod.ly.gov.tw/Committee/MovieByDate'
+    COMMS_DATE = 'https://ivod.ly.gov.tw/Committee/CommsDate'
+    MOVIE_BY_DATE = 'https://ivod.ly.gov.tw/Committee/MovieByDate'
 
 
 def _default_header():
-    header = {'Referer': 'http://ivod.ly.gov.tw/Committee',
+    header = {'Referer': 'https://ivod.ly.gov.tw/Committee',
               'Accept': '*/*',
               'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
               'Host': 'ivod.ly.gov.tw',

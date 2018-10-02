@@ -95,9 +95,9 @@ def generate_video_url(wzs_id, t, quality='w'):
     else:
         return False
     if quality == 'w':
-        url = 'http://ivod.ly.gov.tw/Play/%s/%s/1M' % (url_part, wzs_id)
+        url = 'https://ivod.ly.gov.tw/Play/%s/%s/1M' % (url_part, wzs_id)
     elif quality == 'n':
-        url = 'http://ivod.ly.gov.tw/Play/%s/%s/300K' % (url_part, wzs_id)
+        url = 'https://ivod.ly.gov.tw/Play/%s/%s/300K' % (url_part, wzs_id)
     else:
         return False
 
@@ -140,7 +140,7 @@ def write_config(info, path):
 
 
 def get_picture_url(pic_name):
-    return 'http://ivod.ly.gov.tw/Image/Pic/' + pic_name
+    return 'https://ivod.ly.gov.tw/Image/Pic/' + pic_name
 
 
 def download_job(item, limit_speed=0):

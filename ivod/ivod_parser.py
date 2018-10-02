@@ -4,7 +4,7 @@ from .request import build_request
 from BeautifulSoup import BeautifulSoup
 
 
-_SCRIPT_PLAYER_DELIMITER = "readyPlayer('http://ivod.ly.gov.tw/public/scripts/','"
+_SCRIPT_PLAYER_DELIMITER = "readyPlayer('https://ivod.ly.gov.tw/public/scripts/','"
 
 
 def _extract_manifest_from_player_script(content):
@@ -46,7 +46,7 @@ def _extract_text_info_from_player_page(url, content):
 
 
 def _supported_url(url):
-    return 'http://ivod.ly.gov.tw/Play/' in url
+    return 'https://ivod.ly.gov.tw/Play/' in url
 
 
 def extract_manifest_from_player_page(url, ensure_high_quality_video=False):

@@ -15,8 +15,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 currect_time = 0
-base_url = 'http://ivod.ly.gov.tw/'
-committee_url = 'http://ivod.ly.gov.tw/Committee/CommsDate'
+base_url = 'https://ivod.ly.gov.tw/'
+committee_url = 'https://ivod.ly.gov.tw/Committee/CommsDate'
 
 committee ={
     '19':{'name': u'院會', 'code': 'YS'},
@@ -62,7 +62,7 @@ def reset_cookie():
     #if time lagger then 15 min, will reset.
     if time.time() - currect_time > 900:
         http_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 'Host': 'ivod.ly.gov.tw'}
-        req = urllib2.Request('http://ivod.ly.gov.tw/', None, http_header)
+        req = urllib2.Request('https://ivod.ly.gov.tw/', None, http_header)
         try:
             web = urllib2.urlopen(req)
             result = web.read()
@@ -73,14 +73,14 @@ def reset_cookie():
         #print result
 
 def get_date_list(comt, start_date=None, end_date=None):
-    http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
+    http_header = {'Referer': 'https://ivod.ly.gov.tw/Committee', 
         'Accept': '*/*',
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
         'Host': 'ivod.ly.gov.tw',
         'Connection': 'keep-alive',
         'X-Requested-With': 'XMLHttpRequest',
         'Pragma': 'no-cache'}
-    req = urllib2.Request('http://ivod.ly.gov.tw/Committee/CommsDate', urllib.urlencode({'comtid': comt}), http_header)
+    req = urllib2.Request('https://ivod.ly.gov.tw/Committee/CommsDate', urllib.urlencode({'comtid': comt}), http_header)
     try:
         if not start_date:
             start_date = '2011-01-01'
@@ -107,14 +107,14 @@ def get_date_list(comt, start_date=None, end_date=None):
         return False
 
 def get_movie_by_date(comit, date, page=1):
-    http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
+    http_header = {'Referer': 'https://ivod.ly.gov.tw/Committee', 
         'Accept': '*/*',
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
         'Host': 'ivod.ly.gov.tw',
         'Connection': 'keep-alive',
         'X-Requested-With': 'XMLHttpRequest',
         'Pragma': 'no-cache'}
-    req = urllib2.Request('http://ivod.ly.gov.tw/Committee/MovieByDate', urllib.urlencode({'comtid': comit, 'date': date, 'page': page}), http_header)
+    req = urllib2.Request('https://ivod.ly.gov.tw/Committee/MovieByDate', urllib.urlencode({'comtid': comit, 'date': date, 'page': page}), http_header)
     try:
         web = urllib2.urlopen(req)
     except:
@@ -133,7 +133,7 @@ def get_movie_by_date(comit, date, page=1):
         return False
 
 def get_movie_url(wzs_id, t, quality='w'):
-    http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
+    http_header = {'Referer': 'https://ivod.ly.gov.tw/Committee', 
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
         'Host': 'ivod.ly.gov.tw',
         'Connection': 'keep-alive'}
@@ -144,9 +144,9 @@ def get_movie_url(wzs_id, t, quality='w'):
     else:
         return False
     if quality == 'w':
-        url = 'http://ivod.ly.gov.tw/Play/%s/%s/1M' % (url_part, wzs_id)
+        url = 'https://ivod.ly.gov.tw/Play/%s/%s/1M' % (url_part, wzs_id)
     elif quality == 'n':
-        url = 'http://ivod.ly.gov.tw/Play/%s/%s/300K' % (url_part, wzs_id)
+        url = 'https://ivod.ly.gov.tw/Play/%s/%s/300K' % (url_part, wzs_id)
     else:
         return False
     #print url
@@ -170,7 +170,7 @@ def get_movie_url(wzs_id, t, quality='w'):
         if div_movie:
             #print div_movie
             script_text = div_movie.find('script').text.strip()
-            script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
+            script_text = script_text.replace("readyPlayer('https://ivod.ly.gov.tw/public/scripts/','", '')
             script_text = script_text.split("');")[0]
             #print script_text
             return script_text
@@ -180,7 +180,7 @@ def get_movie_url(wzs_id, t, quality='w'):
         return False
 
 def get_picture_url(pic_name):
-    return 'http://ivod.ly.gov.tw/Image/Pic/' + pic_name
+    return 'https://ivod.ly.gov.tw/Image/Pic/' + pic_name
 
 def random_sleep():
     time.sleep(random.randint(1,5))

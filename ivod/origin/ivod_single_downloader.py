@@ -32,7 +32,7 @@ def reset_cookie():
     #if time lagger then 15 min, will reset.
     if time.time() - currect_time > 900:
         http_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 'Host': 'ivod.ly.gov.tw'}
-        req = urllib2.Request('http://ivod.ly.gov.tw/', None, http_header)
+        req = urllib2.Request('https://ivod.ly.gov.tw/', None, http_header)
         try:
             web = urllib2.urlopen(req)
             result = web.read()
@@ -48,12 +48,12 @@ def test_php():
     return result == 0
 
 def download_from_url(url):
-    http_header = {'Referer': 'http://ivod.ly.gov.tw/Committee', 
+    http_header = {'Referer': 'https://ivod.ly.gov.tw/Committee', 
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)', 
         'Host': 'ivod.ly.gov.tw',
         'Connection': 'keep-alive'}
 
-    if 'http://ivod.ly.gov.tw/Play/' not in url:
+    if 'https://ivod.ly.gov.tw/Play/' not in url:
         sys.stderr.write('URL error')
         sys.exit(1)
 
@@ -89,7 +89,7 @@ def download_from_url(url):
         if div_movie:
             #print div_movie
             script_text = div_movie.find('script').text.strip()
-            script_text = script_text.replace("readyPlayer('http://ivod.ly.gov.tw/public/scripts/','", '')
+            script_text = script_text.replace("readyPlayer('https://ivod.ly.gov.tw/public/scripts/','", '')
             script_text = script_text.split("');")[0]
             print script_text
 

@@ -21,7 +21,7 @@ def read_chrome_message():
 
 def build_player_url(message):
     if 'uri' in message:
-        return "http://ivod.ly.gov.tw" + message['uri'] 
+        return "https://ivod.ly.gov.tw" + message['uri'] 
 
 def disable_output_from_twly_dls():
     """
